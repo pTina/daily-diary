@@ -145,29 +145,31 @@ export function CalendarPage() {
         </div>
       </div>
 
-      <div className="lg:hidden">
-        <BottomSheet>
-          <TaskPanel
-            date={selectedDate}
-            groups={groups}
-            sources={sources}
-            instances={filteredInstances}
-            groupFilters={groupFilters}
-            showAddButton={false}
-            onAdd={() => openTaskForm()}
-            onOpen={(task) => openTaskForm(task.sourceId, task.instanceDate)}
-            onToggle={handleToggle}
-          />
-        </BottomSheet>
-        <button
-          type="button"
-          onClick={() => openTaskForm()}
-          className="fixed right-5 bottom-6 z-30 grid h-14 w-14 place-items-center rounded-full bg-ink text-2xl text-white shadow-panel"
-          aria-label="할 일 추가"
-        >
-          +
-        </button>
-      </div>
+      {!isDesktop ? (
+        <>
+          <BottomSheet>
+            <TaskPanel
+              date={selectedDate}
+              groups={groups}
+              sources={sources}
+              instances={filteredInstances}
+              groupFilters={groupFilters}
+              showAddButton={false}
+              onAdd={() => openTaskForm()}
+              onOpen={(task) => openTaskForm(task.sourceId, task.instanceDate)}
+              onToggle={handleToggle}
+            />
+          </BottomSheet>
+          <button
+            type="button"
+            onClick={() => openTaskForm()}
+            className="fixed right-5 bottom-6 z-30 grid h-14 w-14 place-items-center rounded-full bg-ink text-2xl text-white shadow-panel"
+            aria-label="할 일 추가"
+          >
+            +
+          </button>
+        </>
+      ) : null}
 
       <TaskFormModal onCreate={handleCreate} onUpdate={handleUpdate} onDelete={handleDeleteRequest} />
       <RecurrenceScopeDialog onSelect={handleScope} />

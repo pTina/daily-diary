@@ -1,7 +1,12 @@
 import { addDays, addMonthsToDate, compareISODate, eachDayInclusive } from '@/shared/lib/dateUtils';
 import type { Task, TaskInstance } from '@/shared/types/task';
 
-export function toInstance(task: Task, instanceDate = task.date, spanStart = instanceDate): TaskInstance {
+export function toInstance(
+  task: Task,
+  instanceDate = task.date,
+  spanStart = instanceDate,
+  spanEnd = instanceDate,
+): TaskInstance {
   return {
     ...task,
     date: instanceDate,
@@ -10,6 +15,7 @@ export function toInstance(task: Task, instanceDate = task.date, spanStart = ins
     instanceId: `${task.id}__${spanStart}__${instanceDate}`,
     isRecurring: Boolean(task.recurrence),
     spanStart,
+    spanEnd,
   };
 }
 
@@ -22,7 +28,7 @@ function spanInstances(task: Task, start: string, from: string, to: string): Tas
   const end = addDays(start, spanLength(task) - 1);
   return eachDayInclusive(start, end)
     .filter((day) => compareISODate(day, from) >= 0 && compareISODate(day, to) <= 0)
-    .map((day) => toInstance(task, day, start));
+    .map((day) => toInstance(task, day, start, end));
 }
 
 export function expandRecurrence(task: Task, from: string, to: string): TaskInstance[] {

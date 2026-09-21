@@ -26,6 +26,7 @@ export type TaskInstance = Task & {
   instanceId: string;
   isRecurring: boolean;
   spanStart: string;
+  spanEnd: string;
 };
 
 export type TaskDraft = {

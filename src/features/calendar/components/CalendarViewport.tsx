@@ -56,11 +56,19 @@ export function CalendarViewport({ children }: Props) {
   const viewportHeight = canScroll ? Math.max(0, slotHeight - sheetCoverPx(sheetSnap, viewHeight)) : undefined;
 
   return (
-    <div ref={slotRef} className="min-h-0 min-w-0 flex-1">
+    <div ref={slotRef} className="relative min-h-0 min-w-0 flex-1 bg-paper">
       <div
         ref={scrollerRef}
         className={canScroll ? 'overflow-x-hidden overflow-y-auto overscroll-y-contain' : 'flex h-full min-h-0 flex-col overflow-hidden'}
-        style={canScroll ? { height: viewportHeight } : undefined}
+        style={
+          canScroll
+            ? {
+                height: viewportHeight,
+                WebkitMaskImage: 'linear-gradient(to bottom, #000 calc(100% - 48px), transparent)',
+                maskImage: 'linear-gradient(to bottom, #000 calc(100% - 48px), transparent)',
+              }
+            : undefined
+        }
       >
         <div className="flex min-h-0 flex-col" style={{ height: canScroll ? slotHeight : '100%' }}>
           {children}

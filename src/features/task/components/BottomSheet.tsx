@@ -1,5 +1,6 @@
 import type { SheetSnap } from '@/store/useUiStore';
 import { useUiStore } from '@/store/useUiStore';
+import { useMediaQuery } from '@/shared/lib/useMediaQuery';
 import type { ReactNode } from 'react';
 import { Drawer } from 'vaul';
 
@@ -23,9 +24,12 @@ function snapFromPoint(point: number | string | null): SheetSnap {
 }
 
 export function BottomSheet({ children }: Props) {
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
   const sheetSnap = useUiStore((state) => state.sheetSnap);
   const setSheetSnap = useUiStore((state) => state.setSheetSnap);
   const open = sheetSnap !== 'closed';
+
+  if (isDesktop) return null;
 
   return (
     <Drawer.Root
@@ -57,7 +61,7 @@ export function BottomSheet({ children }: Props) {
         <Drawer.Trigger asChild>
           <button
             type="button"
-            className="absolute inset-x-0 bottom-0 z-20 flex h-8 items-center justify-center rounded-t-3xl border-t border-line bg-paper shadow-[0_-16px_40px_rgba(43,45,49,0.08)]"
+            className="sheet-surface absolute inset-x-0 bottom-0 z-20 flex h-8 items-center justify-center rounded-t-3xl"
             aria-label="할 일 시트 열기"
           >
             <span className="h-1 w-12 rounded-full bg-line-strong" />
@@ -67,7 +71,7 @@ export function BottomSheet({ children }: Props) {
       <Drawer.Portal>
         <Drawer.Content
           aria-describedby={undefined}
-          className="fixed inset-x-0 bottom-0 z-20 flex h-full max-h-[97%] flex-col rounded-t-3xl border-t border-line bg-paper outline-none shadow-[0_-16px_40px_rgba(43,45,49,0.08)]"
+          className="sheet-surface fixed inset-x-0 bottom-0 z-20 flex h-full max-h-[97%] flex-col rounded-t-3xl outline-none"
         >
           <Drawer.Title className="sr-only">할 일</Drawer.Title>
           <Drawer.Handle

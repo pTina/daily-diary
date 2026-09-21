@@ -1,5 +1,6 @@
 import { DayCell } from '@/features/calendar/components/DayCell';
 import { useMonthMatrix } from '@/features/calendar/hooks/useMonthMatrix';
+import { layoutWeekSpans, type WeekSpan } from '@/features/calendar/utils/layoutWeekSpans';
 import { addMonths } from '@/shared/lib/dateUtils';
 import type { Group } from '@/shared/types/group';
 import type { TaskInstance } from '@/shared/types/task';
@@ -16,6 +17,10 @@ type Props = {
 };
 
 const SWIPE_THRESHOLD = 50;
+const MAX_LANES = 3;
+const BAR_HEIGHT = 20;
+const BAR_GAP = 4;
+const COMPACT_BAR = 6;
 
 export function MonthGrid({ currentMonth, selectedDate, mode, tasks, groups, compact }: Props) {
   const { weekdays, weeks } = useMonthMatrix(currentMonth, mode, selectedDate);
@@ -65,22 +70,106 @@ export function MonthGrid({ currentMonth, selectedDate, mode, tasks, groups, com
           </div>
         ))}
       </div>
-      <div
-        className="grid min-h-0 flex-1 grid-cols-7 border-l border-t border-line"
-        style={{ gridTemplateRows: `repeat(${weeks.length}, minmax(0, 1fr))` }}
-      >
-        {weeks.flatMap((week) =>
-          week.map((cell) => (
-            <DayCell
-              key={cell.date}
-              cell={cell}
-              compact={compact}
-              groups={groups}
-              tasks={tasks.filter((task) => task.date === cell.date)}
-            />
-          )),
-        )}
+      <div className="flex min-h-0 flex-1 flex-col border-l border-t border-line">
+        {weeks.map((week) => (
+          <WeekRow
+            key={week[0]?.date}
+            week={week}
+            tasks={tasks}
+            groups={groups}
+            compact={compact}
+          />
+        ))}
       </div>
     </div>
+  );
+}
+
+function WeekRow({
+  week,
+  tasks,
+  groups,
+  compact,
+}: {
+  week: { date: string; inMonth: boolean }[];
+  tasks: TaskInstance[];
+  groups: Group[];
+  compact: boolean;
+}) {
+  const openTaskForm = useUiStore((state) => state.openTaskForm);
+  const spans = layoutWeekSpans(week, tasks);
+  const visible = spans.filter((span) => span.lane < MAX_LANES);
+  const hidden = spans.filter((span) => span.lane >= MAX_LANES);
+  const barSize = compact ? COMPACT_BAR : BAR_HEIGHT;
+  const barGap = compact ? 3 : BAR_GAP;
+
+  return (
+    <div className="relative grid min-h-0 flex-1 grid-cols-7">
+      {week.map((cell) => (
+        <DayCell key={cell.date} cell={cell} />
+      ))}
+      <div className="pointer-events-none absolute inset-x-0 top-9 bottom-1 lg:top-10">
+        {visible.map((span) => {
+          const group = groups.find((item) => item.id === span.task.groupId);
+          const color = group?.color ?? '#D8B4D6';
+          return (
+            <button
+              key={span.key}
+              type="button"
+              className={`pointer-events-auto absolute flex items-center overflow-hidden ${
+                compact ? '' : 'px-1.5 text-[11px] leading-4'
+              } ${span.task.done ? 'bg-[#EEF0F3] text-faint line-through' : 'text-ink'}`}
+              style={{
+                left: `calc(${(span.startCol / 7) * 100}% + 4px)`,
+                width: `calc(${(span.dayCount / 7) * 100}% - 8px)`,
+                top: span.lane * (barSize + barGap),
+                height: barSize,
+                borderRadius: 999,
+                backgroundColor: span.task.done ? undefined : color,
+              }}
+              title={span.task.title}
+              onClick={(event) => {
+                event.stopPropagation();
+                openTaskForm(span.task.sourceId, span.task.spanStart);
+              }}
+            >
+              {compact ? null : (
+                <SpanLabel span={span} />
+              )}
+            </button>
+          );
+        })}
+        {hidden.length > 0 ? (
+          <span
+            className="absolute text-[11px] text-faint"
+            style={{ left: 8, top: MAX_LANES * (barSize + barGap) }}
+          >
+            +{hidden.length}
+          </span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function SpanLabel({ span }: { span: WeekSpan }) {
+  if (span.continuesLeft) {
+    return (
+      <span className="inline-flex items-center gap-1 truncate">
+        <ContinuationDots />
+        <span className="truncate">{span.task.title}</span>
+      </span>
+    );
+  }
+  return <span className="truncate">{span.task.title}</span>;
+}
+
+function ContinuationDots() {
+  return (
+    <span className="inline-flex shrink-0 items-center gap-0.5 pr-0.5" aria-hidden>
+      <span className="h-1 w-1 rounded-full bg-current opacity-70" />
+      <span className="h-1 w-1 rounded-full bg-current opacity-70" />
+      <span className="h-1 w-1 rounded-full bg-current opacity-70" />
+    </span>
   );
 }

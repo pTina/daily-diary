@@ -15,11 +15,13 @@ export function DateField({ id, label, value, min, onChange }: Props) {
         {label}
       </label>
       <div className="relative">
-        <div className="krds-input flex h-11 items-center justify-between gap-2 rounded-lg border border-line-strong bg-paper px-3 text-sm text-ink">
+        <div className="krds-input flex h-11 items-center justify-between rounded-lg border border-line-strong bg-paper pl-3 text-sm text-ink">
           <span className="min-w-0 truncate">
             {value ? `${value} ${formatWeekdayParen(value)}` : <span className="text-faint">날짜 선택</span>}
           </span>
-          <CalendarIcon />
+          <span className="grid h-11 w-12 shrink-0 place-items-center">
+            <CalendarIcon />
+          </span>
         </div>
         <input
           id={id}
@@ -28,7 +30,7 @@ export function DateField({ id, label, value, min, onChange }: Props) {
           min={min}
           aria-label={`${label}${value ? ` ${value} ${formatWeekdayParen(value)}` : ''}`}
           onChange={(event) => onChange(event.target.value)}
-          className="absolute inset-0 cursor-pointer opacity-0"
+          className="date-field-input absolute inset-0 cursor-pointer opacity-0"
         />
       </div>
     </div>
@@ -39,7 +41,7 @@ function CalendarIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="h-5 w-5 shrink-0 text-ink"
+      className="h-6 w-6 shrink-0 text-ink"
       fill="currentColor"
       aria-hidden
     >
