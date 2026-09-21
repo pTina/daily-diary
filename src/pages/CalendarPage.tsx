@@ -1,7 +1,7 @@
 import { CalendarHeader } from '@/features/calendar/components/CalendarHeader';
 import { CalendarViewport } from '@/features/calendar/components/CalendarViewport';
 import { MonthGrid } from '@/features/calendar/components/MonthGrid';
-import { BottomSheet } from '@/features/task/components/BottomSheet';
+import { DayTaskModal } from '@/features/task/components/DayTaskModal';
 import { DeleteConfirmDialog } from '@/features/task/components/DeleteConfirmDialog';
 import { RecurrenceScopeDialog } from '@/features/task/components/RecurrenceScopeDialog';
 import { TaskFormModal } from '@/features/task/components/TaskFormModal';
@@ -147,19 +147,16 @@ export function CalendarPage() {
 
       {!isDesktop ? (
         <>
-          <BottomSheet>
-            <TaskPanel
-              date={selectedDate}
-              groups={groups}
-              sources={sources}
-              instances={filteredInstances}
-              groupFilters={groupFilters}
-              showAddButton={false}
-              onAdd={() => openTaskForm()}
-              onOpen={(task) => openTaskForm(task.sourceId, task.instanceDate)}
-              onToggle={handleToggle}
-            />
-          </BottomSheet>
+          <DayTaskModal
+            date={selectedDate}
+            groups={groups}
+            sources={sources}
+            instances={filteredInstances}
+            groupFilters={groupFilters}
+            onAdd={() => openTaskForm()}
+            onOpen={(task) => openTaskForm(task.sourceId, task.instanceDate)}
+            onToggle={handleToggle}
+          />
           <button
             type="button"
             onClick={() => openTaskForm()}

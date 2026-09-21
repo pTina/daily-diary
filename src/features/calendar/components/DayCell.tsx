@@ -9,6 +9,7 @@ type Props = {
 export function DayCell({ cell }: Props) {
   const selectedDate = useUiStore((state) => state.selectedDate);
   const setSelectedDate = useUiStore((state) => state.setSelectedDate);
+  const openDayPanel = useUiStore((state) => state.openDayPanel);
   const isToday = cell.date === todayISO();
   const selected = cell.date === selectedDate;
   const day = parseISODate(cell.date).getDate();
@@ -17,7 +18,10 @@ export function DayCell({ cell }: Props) {
   return (
     <button
       type="button"
-      onClick={() => setSelectedDate(cell.date)}
+      onClick={() => {
+        setSelectedDate(cell.date);
+        openDayPanel();
+      }}
       className={`flex min-h-[62px] flex-col border-r border-b border-line px-1.5 py-1.5 text-left transition-colors lg:min-h-0 lg:h-full lg:px-2 lg:py-2 ${
         selected ? 'ring-2 ring-accent ring-inset' : ''
       } ${cell.inMonth ? 'bg-paper/80' : 'bg-canvas/70'}`}

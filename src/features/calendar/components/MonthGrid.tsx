@@ -20,7 +20,8 @@ const SWIPE_THRESHOLD = 50;
 const MAX_LANES = 3;
 const BAR_HEIGHT = 20;
 const BAR_GAP = 4;
-const COMPACT_BAR = 6;
+const COMPACT_BAR = 16;
+const COMPACT_GAP = 2;
 
 export function MonthGrid({ currentMonth, selectedDate, mode, tasks, groups, compact }: Props) {
   const { weekdays, weeks } = useMonthMatrix(currentMonth, mode, selectedDate);
@@ -104,7 +105,7 @@ function WeekRow({
     hidden.filter((span) => col >= span.startCol && col < span.startCol + span.dayCount).length,
   );
   const barSize = compact ? COMPACT_BAR : BAR_HEIGHT;
-  const barGap = compact ? 3 : BAR_GAP;
+  const barGap = compact ? COMPACT_GAP : BAR_GAP;
 
   return (
     <div className="relative grid min-h-0 flex-1 grid-cols-7">
@@ -119,9 +120,9 @@ function WeekRow({
             <button
               key={span.key}
               type="button"
-              className={`pointer-events-auto absolute flex items-center overflow-hidden ${
-                compact ? '' : 'px-1.5 text-[11px] leading-4'
-              } ${span.task.done ? 'bg-[#EEF0F3] text-faint line-through' : 'text-ink'}`}
+              className={`pointer-events-auto absolute flex items-center overflow-hidden px-1 text-[0.375rem] leading-3 lg:px-1.5 lg:text-[0.4375rem] lg:leading-3 ${
+                span.task.done ? 'bg-[#EEF0F3] text-faint line-through' : 'text-ink'
+              }`}
               style={{
                 left: `calc(${(span.startCol / 7) * 100}% + 4px)`,
                 width: `calc(${(span.dayCount / 7) * 100}% - 8px)`,
@@ -136,9 +137,7 @@ function WeekRow({
                 openTaskForm(span.task.sourceId, span.task.spanStart);
               }}
             >
-              {compact ? null : (
-                <SpanLabel span={span} />
-              )}
+              <SpanLabel span={span} />
             </button>
           );
         })}

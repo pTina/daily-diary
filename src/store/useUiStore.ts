@@ -3,8 +3,6 @@ import { PERSONAL_GROUP_ID, WORK_GROUP_ID } from '@/shared/types/group';
 import type { RecurrenceScope, TaskDraft } from '@/shared/types/task';
 import { create } from 'zustand';
 
-export type SheetSnap = 'closed' | 'peek' | 'half' | 'full';
-
 type Modal =
   | { name: 'closed' }
   | { name: 'task-form'; sourceId?: string; instanceDate?: string }
@@ -15,14 +13,15 @@ type UiState = {
   selectedDate: string;
   currentMonth: string;
   groupFilters: Record<string, boolean>;
-  sheetSnap: SheetSnap;
+  dayPanelOpen: boolean;
   modal: Modal;
   pendingDraft: TaskDraft | null;
   pendingScope: RecurrenceScope;
   setSelectedDate: (date: string) => void;
   setCurrentMonth: (month: string) => void;
   toggleGroupFilter: (groupId: string) => void;
-  setSheetSnap: (snap: SheetSnap) => void;
+  openDayPanel: () => void;
+  closeDayPanel: () => void;
   openTaskForm: (sourceId?: string, instanceDate?: string) => void;
   openRecurrenceScope: (mode: 'edit' | 'delete', sourceId: string, instanceDate: string) => void;
   openDeleteConfirm: (sourceId: string, instanceDate?: string) => void;
@@ -38,16 +37,15 @@ export const useUiStore = create<UiState>((set) => ({
     [WORK_GROUP_ID]: true,
     [PERSONAL_GROUP_ID]: true,
   },
-  sheetSnap: 'half',
+  dayPanelOpen: false,
   modal: { name: 'closed' },
   pendingDraft: null,
   pendingScope: 'all',
   setSelectedDate: (selectedDate) =>
-    set((state) => ({
+    set({
       selectedDate,
       currentMonth: selectedDate.slice(0, 7),
-      sheetSnap: state.sheetSnap === 'full' ? 'full' : 'half',
-    })),
+    }),
   setCurrentMonth: (currentMonth) => set({ currentMonth }),
   toggleGroupFilter: (groupId) =>
     set((state) => ({
@@ -56,7 +54,8 @@ export const useUiStore = create<UiState>((set) => ({
         [groupId]: !state.groupFilters[groupId],
       },
     })),
-  setSheetSnap: (sheetSnap) => set({ sheetSnap }),
+  openDayPanel: () => set({ dayPanelOpen: true }),
+  closeDayPanel: () => set({ dayPanelOpen: false }),
   openTaskForm: (sourceId, instanceDate) =>
     set({ modal: { name: 'task-form', sourceId, instanceDate } }),
   openRecurrenceScope: (mode, sourceId, instanceDate) =>

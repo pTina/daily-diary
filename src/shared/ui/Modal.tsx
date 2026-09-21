@@ -1,4 +1,4 @@
-import { useEffect, useId, type ReactNode } from 'react';
+import { useEffect, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 type Props = {
@@ -8,9 +8,18 @@ type Props = {
   children: ReactNode;
   footer?: ReactNode;
   fullScreenOnMobile?: boolean;
+  size?: 'dialog' | 'panel';
 };
 
-export function Modal({ open, title, onClose, children, footer, fullScreenOnMobile = true }: Props) {
+export function Modal({
+  open,
+  title,
+  onClose,
+  children,
+  footer,
+  fullScreenOnMobile = true,
+  size = 'dialog',
+}: Props) {
   const titleId = useId();
 
   useEffect(() => {
@@ -24,16 +33,27 @@ export function Modal({ open, title, onClose, children, footer, fullScreenOnMobi
 
   if (!open) return null;
 
+  const onBackdrop = (event: MouseEvent<HTMLElement>) => {
+    if (event.target === event.currentTarget) onClose();
+  };
+
+  const dialogSize = fullScreenOnMobile
+    ? 'h-full lg:h-auto lg:max-h-[min(760px,90vh)] lg:max-w-[440px] lg:rounded-2xl'
+    : size === 'panel'
+      ? 'max-h-[min(720px,86vh)] w-full max-w-[400px] rounded-2xl'
+      : 'max-h-[min(480px,86vh)] max-w-[400px] rounded-2xl';
+
   return createPortal(
     <section
-      className={`krds-modal fade shown in fixed inset-0 z-50 flex ${fullScreenOnMobile ? 'items-stretch lg:items-center' : 'items-center'} justify-center bg-[#2B2D31]/35 p-0 lg:p-6`}
+      className={`krds-modal fade shown in fixed inset-0 z-50 flex justify-center bg-[#2B2D31]/35 ${
+        fullScreenOnMobile ? 'items-stretch p-0 lg:items-center lg:p-6' : 'items-center p-4 lg:p-6'
+      }`}
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
+      onClick={onBackdrop}
     >
-      <div
-        className={`modal-dialog flex w-full flex-col bg-paper shadow-panel ${fullScreenOnMobile ? 'h-full lg:h-auto lg:max-h-[min(760px,90vh)] lg:max-w-[440px] lg:rounded-2xl' : 'max-h-[min(480px,86vh)] max-w-[400px] rounded-2xl'}`}
-      >
+      <div className={`modal-dialog flex w-full flex-col bg-paper shadow-panel ${dialogSize}`}>
         <div className="modal-content flex min-h-0 flex-1 flex-col">
           <div className="modal-header flex items-center justify-between border-b border-line px-5 py-4">
             <h2 id={titleId} className="modal-title text-lg font-semibold">
