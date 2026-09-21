@@ -1,6 +1,7 @@
 import { CalendarHeader } from '@/features/calendar/components/CalendarHeader';
 import { CalendarViewport } from '@/features/calendar/components/CalendarViewport';
 import { MonthGrid } from '@/features/calendar/components/MonthGrid';
+import { SettingsModal } from '@/features/settings/components/SettingsModal';
 import { DayTaskModal } from '@/features/task/components/DayTaskModal';
 import { DeleteConfirmDialog } from '@/features/task/components/DeleteConfirmDialog';
 import { RecurrenceScopeDialog } from '@/features/task/components/RecurrenceScopeDialog';
@@ -12,6 +13,7 @@ import { useTaskMutations } from '@/features/task/hooks/useTaskMutations';
 import { useTaskSources, useTasks } from '@/features/task/hooks/useTasks';
 import { addDays, startOfWeek } from '@/shared/lib/dateUtils';
 import { useMediaQuery } from '@/shared/lib/useMediaQuery';
+import { isHolidayGroup } from '@/shared/types/group';
 import type { RecurrenceScope, TaskDraft, TaskInstance } from '@/shared/types/task';
 import { useUiStore } from '@/store/useUiStore';
 import { useMemo } from 'react';
@@ -47,6 +49,7 @@ export function CalendarPage() {
   const findSource = (sourceId: string) => sources.find((task) => task.id === sourceId);
 
   const handleToggle = (task: TaskInstance) => {
+    if (isHolidayGroup(task.groupId)) return;
     mutations.toggleDone.mutate(task.sourceId);
   };
 
@@ -168,6 +171,7 @@ export function CalendarPage() {
         </>
       ) : null}
 
+      <SettingsModal />
       <TaskFormModal onCreate={handleCreate} onUpdate={handleUpdate} onDelete={handleDeleteRequest} />
       <RecurrenceScopeDialog onSelect={handleScope} />
       <DeleteConfirmDialog onConfirm={handleDeleteConfirm} />

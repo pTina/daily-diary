@@ -1,5 +1,6 @@
 import { addDays } from '@/shared/lib/dateUtils';
 import { storage } from '@/shared/storage';
+import { isHolidayGroup } from '@/shared/types/group';
 import type { RecurrenceScope, Task, TaskDraft } from '@/shared/types/task';
 import { nextOrder } from '../utils/sortTasks';
 
@@ -32,7 +33,9 @@ export const taskApi = {
 
   async toggleDone(id: string) {
     const tasks = await storage.listTasks();
-    const next = tasks.map((task) => (task.id === id ? { ...task, done: !task.done } : task));
+    const next = tasks.map((task) =>
+      task.id === id && !isHolidayGroup(task.groupId) ? { ...task, done: !task.done } : task,
+    );
     await storage.writeTasks(next);
     return next.find((task) => task.id === id);
   },

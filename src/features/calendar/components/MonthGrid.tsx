@@ -120,7 +120,7 @@ function WeekRow({
             <button
               key={span.key}
               type="button"
-              className={`pointer-events-auto absolute flex items-center overflow-hidden px-1 text-[0.375rem] leading-3 lg:px-1.5 lg:text-[0.4375rem] lg:leading-3 ${
+              className={`pointer-events-auto absolute flex items-center overflow-hidden px-1 ${
                 span.task.done ? 'bg-[#EEF0F3] text-faint line-through' : 'text-ink'
               }`}
               style={{
@@ -130,6 +130,8 @@ function WeekRow({
                 height: barSize,
                 borderRadius: 999,
                 backgroundColor: span.task.done ? undefined : color,
+                fontSize: compact ? 8 : 9,
+                lineHeight: '12px',
               }}
               title={span.task.title}
               onClick={(event) => {
@@ -162,23 +164,5 @@ function WeekRow({
 }
 
 function SpanLabel({ span }: { span: WeekSpan }) {
-  if (span.continuesLeft) {
-    return (
-      <span className="inline-flex items-center gap-1 truncate">
-        <ContinuationDots />
-        <span className="truncate">{span.task.title}</span>
-      </span>
-    );
-  }
   return <span className="truncate">{span.task.title}</span>;
-}
-
-function ContinuationDots() {
-  return (
-    <span className="inline-flex shrink-0 items-center gap-0.5 pr-0.5" aria-hidden>
-      <span className="h-1 w-1 rounded-full bg-current opacity-70" />
-      <span className="h-1 w-1 rounded-full bg-current opacity-70" />
-      <span className="h-1 w-1 rounded-full bg-current opacity-70" />
-    </span>
-  );
 }

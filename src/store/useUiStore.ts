@@ -1,5 +1,5 @@
 import { nowMonth, todayISO } from '@/shared/lib/dateUtils';
-import { PERSONAL_GROUP_ID, WORK_GROUP_ID } from '@/shared/types/group';
+import { HOLIDAY_GROUP_ID, PERSONAL_GROUP_ID, WORK_GROUP_ID } from '@/shared/types/group';
 import type { RecurrenceScope, TaskDraft } from '@/shared/types/task';
 import { create } from 'zustand';
 
@@ -7,7 +7,8 @@ type Modal =
   | { name: 'closed' }
   | { name: 'task-form'; sourceId?: string; instanceDate?: string }
   | { name: 'recurrence-scope'; mode: 'edit' | 'delete'; sourceId: string; instanceDate: string }
-  | { name: 'delete-confirm'; sourceId: string; instanceDate?: string };
+  | { name: 'delete-confirm'; sourceId: string; instanceDate?: string }
+  | { name: 'settings' };
 
 type UiState = {
   selectedDate: string;
@@ -25,6 +26,7 @@ type UiState = {
   openTaskForm: (sourceId?: string, instanceDate?: string) => void;
   openRecurrenceScope: (mode: 'edit' | 'delete', sourceId: string, instanceDate: string) => void;
   openDeleteConfirm: (sourceId: string, instanceDate?: string) => void;
+  openSettings: () => void;
   setPendingDraft: (draft: TaskDraft | null) => void;
   setPendingScope: (scope: RecurrenceScope) => void;
   closeModal: () => void;
@@ -36,6 +38,7 @@ export const useUiStore = create<UiState>((set) => ({
   groupFilters: {
     [WORK_GROUP_ID]: true,
     [PERSONAL_GROUP_ID]: true,
+    [HOLIDAY_GROUP_ID]: true,
   },
   dayPanelOpen: false,
   modal: { name: 'closed' },
@@ -62,6 +65,7 @@ export const useUiStore = create<UiState>((set) => ({
     set({ modal: { name: 'recurrence-scope', mode, sourceId, instanceDate } }),
   openDeleteConfirm: (sourceId, instanceDate) =>
     set({ modal: { name: 'delete-confirm', sourceId, instanceDate } }),
+  openSettings: () => set({ modal: { name: 'settings' } }),
   setPendingDraft: (pendingDraft) => set({ pendingDraft }),
   setPendingScope: (pendingScope) => set({ pendingScope }),
   closeModal: () => set({ modal: { name: 'closed' }, pendingDraft: null, pendingScope: 'all' }),

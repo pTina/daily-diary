@@ -18,6 +18,7 @@ export type Task = {
   };
   reminder?: { enabled: boolean; offsetMin: number };
   memo?: string;
+  holiday?: boolean;
 };
 
 export type TaskInstance = Task & {

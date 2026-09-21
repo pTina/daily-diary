@@ -1,4 +1,5 @@
 import type { Group } from '@/shared/types/group';
+import { isHolidayGroup } from '@/shared/types/group';
 import type { TaskInstance } from '@/shared/types/task';
 import { Checkbox } from '@/shared/ui/Checkbox';
 import { useSortable } from '@dnd-kit/sortable';
@@ -17,6 +18,7 @@ export function TaskItem({ task, group, onToggle, onOpen }: Props) {
     data: { groupId: task.groupId },
   });
   const memo = task.memo?.trim();
+  const holiday = isHolidayGroup(task.groupId);
 
   return (
     <div
@@ -29,30 +31,32 @@ export function TaskItem({ task, group, onToggle, onOpen }: Props) {
         style={{ backgroundColor: group.color }}
         aria-hidden
       />
-      <Checkbox
-        id={`done-${task.instanceId}`}
-        checked={task.done}
-        ariaLabel={`${group.name} ${task.title} 완료`}
-        onChange={onToggle}
-      />
+      {holiday ? null : (
+        <Checkbox
+          id={`done-${task.instanceId}`}
+          checked={task.done}
+          ariaLabel={`${group.name} ${task.title} 완료`}
+          onChange={onToggle}
+        />
+      )}
       <button
         type="button"
         onClick={onOpen}
         className="min-w-0 flex-1 py-0.5 text-left"
-        aria-label={`${group.name}, ${task.time ? `${task.time} ` : ''}${task.title}${memo ? `, 메모 ${memo}` : ''}${task.done ? ', 완료됨' : ''}`}
+        aria-label={`${group.name}, ${task.time ? `${task.time} ` : ''}${task.title}${memo ? `, 메모 ${memo}` : ''}${!holiday && task.done ? ', 완료됨' : ''}`}
       >
         <span className="flex items-baseline gap-2">
-          {task.time ? (
+          {task.time && !holiday ? (
             <span className={`text-xs tabular-nums ${task.done ? 'text-faint' : 'text-muted'}`}>
               {task.time}
             </span>
           ) : null}
-          <span className={`truncate text-sm ${task.done ? 'text-faint line-through' : 'text-ink'}`}>
+          <span className={`truncate text-sm ${!holiday && task.done ? 'text-faint line-through' : 'text-ink'}`}>
             {task.title}
           </span>
         </span>
         {memo ? (
-          <span className={`mt-3 block whitespace-pre-wrap break-words text-sm ${task.done ? 'text-faint' : 'text-muted'}`}>
+          <span className={`mt-3 block whitespace-pre-wrap break-words text-sm ${!holiday && task.done ? 'text-faint' : 'text-muted'}`}>
             {memo}
           </span>
         ) : null}

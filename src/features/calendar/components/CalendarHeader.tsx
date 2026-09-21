@@ -10,6 +10,7 @@ export function CalendarHeader() {
   const setCurrentMonth = useUiStore((state) => state.setCurrentMonth);
   const setSelectedDate = useUiStore((state) => state.setSelectedDate);
   const toggleGroupFilter = useUiStore((state) => state.toggleGroupFilter);
+  const openSettings = useUiStore((state) => state.openSettings);
   const { data: groups = [] } = useGroups();
 
   return (
@@ -56,7 +57,7 @@ export function CalendarHeader() {
         </Link>
       </div>
 
-      <div className="flex items-center justify-between gap-3 lg:justify-end">
+      <div className="hidden items-center justify-end gap-3 lg:flex">
         <div className="flex items-center gap-2">
           {groups.map((group) => {
             const on = groupFilters[group.id] !== false;
@@ -80,13 +81,14 @@ export function CalendarHeader() {
             );
           })}
         </div>
-        <Link
-          to="/settings"
-          className="hidden h-9 w-9 place-items-center rounded-full text-muted hover:bg-canvas hover:text-ink lg:grid"
+        <button
+          type="button"
+          onClick={openSettings}
+          className="grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-canvas hover:text-ink"
           aria-label="설정"
         >
           <SettingsIcon />
-        </Link>
+        </button>
       </div>
     </header>
   );
@@ -94,9 +96,9 @@ export function CalendarHeader() {
 
 function SettingsIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" aria-hidden>
       <circle cx="12" cy="12" r="3" />
-      <path d="M12 3.5v2.2M12 18.3v2.2M4.8 6.4l1.6 1.6M17.6 16l1.6 1.6M3.5 12h2.2M18.3 12h2.2M4.8 17.6l1.6-1.6M17.6 8l1.6-1.6" />
+      <path d="M12 3.2 12.9 5.5c.4.1.8.3 1.2.5l2.3-.6 1.5 1.5-.6 2.3c.2.4.4.8.5 1.2L20.8 12 18.5 12.9c-.1.4-.3.8-.5 1.2l.6 2.3-1.5 1.5-2.3-.6c-.4.2-.8.4-1.2.5L12 20.8 11.1 18.5c-.4-.1-.8-.3-1.2-.5l-2.3.6-1.5-1.5.6-2.3c-.2-.4-.4-.8-.5-1.2L3.2 12 5.5 11.1c.1-.4.3-.8.5-1.2l-.6-2.3 1.5-1.5 2.3.6c.4-.2.8-.4 1.2-.5L12 3.2Z" />
     </svg>
   );
 }

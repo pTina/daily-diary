@@ -9,6 +9,7 @@ import { Switch } from '@/shared/ui/Switch';
 import { TextField } from '@/shared/ui/TextField';
 import { TimeWheel } from '@/shared/ui/TimeWheel';
 import { addDays, eachDayInclusive, snapToTimeStep } from '@/shared/lib/dateUtils';
+import { isHolidayGroup } from '@/shared/types/group';
 import type { TaskDraft } from '@/shared/types/task';
 import { useUiStore } from '@/store/useUiStore';
 import { useEffect, useMemo, useState } from 'react';
@@ -67,6 +68,7 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
   }, [source, selectedDate, groups, instanceDate]);
 
   const [draft, setDraft] = useState(initial);
+  const holiday = isHolidayGroup(draft.groupId);
 
   useEffect(() => {
     if (open) setDraft(initial);
@@ -79,7 +81,7 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
   return (
     <Modal
       open={open}
-      title={source ? '할 일 수정' : '할 일 추가'}
+      title={source ? (holiday ? '휴일 수정' : '할 일 수정') : holiday ? '휴일 추가' : '할 일 추가'}
       onClose={closeModal}
       footer={
         <div className="flex items-center justify-between gap-2">
@@ -109,7 +111,7 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
           id="task-title"
           label="제목"
           value={draft.title}
-          placeholder="무엇을 할까요?"
+          placeholder={holiday ? '휴일 이름' : '무엇을 할까요?'}
           onChange={(event) => set('title', event.target.value)}
         />
         <DateField
@@ -140,22 +142,32 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
             label: group.name,
             color: group.color,
           }))}
-          onChange={(groupId) => set('groupId', groupId)}
+          onChange={(groupId) =>
+            setDraft((current) => ({
+              ...current,
+              groupId,
+              timeEnabled: isHolidayGroup(groupId) ? false : current.timeEnabled,
+            }))
+          }
         />
-        <Switch
-          id="task-time"
-          label="시간 설정"
-          checked={draft.timeEnabled}
-          onChange={(checked) => set('timeEnabled', checked)}
-        />
-        {draft.timeEnabled ? (
-          <TimeWheel
-            id="task-time-value"
-            label="시간"
-            value={snapToTimeStep(draft.time)}
-            onChange={(time) => set('time', time)}
-          />
-        ) : null}
+        {holiday ? null : (
+          <>
+            <Switch
+              id="task-time"
+              label="시간 설정"
+              checked={draft.timeEnabled}
+              onChange={(checked) => set('timeEnabled', checked)}
+            />
+            {draft.timeEnabled ? (
+              <TimeWheel
+                id="task-time-value"
+                label="시간"
+                value={snapToTimeStep(draft.time)}
+                onChange={(time) => set('time', time)}
+              />
+            ) : null}
+          </>
+        )}
         <Switch
           id="task-repeat"
           label="반복"

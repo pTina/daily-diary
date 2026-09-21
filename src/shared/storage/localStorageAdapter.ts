@@ -1,4 +1,4 @@
-import { DEFAULT_GROUPS } from '@/shared/types/group';
+import { DEFAULT_GROUPS, HOLIDAY_GROUP_ID, mergeDefaultGroups } from '@/shared/types/group';
 import { DEFAULT_SETTINGS, type AppSettings } from '@/shared/types/settings';
 import type { Group } from '@/shared/types/group';
 import type { Task } from '@/shared/types/task';
@@ -38,6 +38,12 @@ function writeJson(key: string, value: unknown) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+function normalizeTask(task: Task): Task {
+  if (!task.holiday) return task;
+  const { holiday: _holiday, ...rest } = task;
+  return { ...rest, groupId: HOLIDAY_GROUP_ID };
+}
+
 function ensureSeeded() {
   if (!localStorage.getItem(KEYS.version)) {
     writeJson(KEYS.groups, DEFAULT_GROUPS);
@@ -50,17 +56,16 @@ function ensureSeeded() {
 export const localStorageAdapter: StorageAdapter = {
   async listTasks() {
     ensureSeeded();
-    return readJson<Task[]>(KEYS.tasks) ?? [];
+    return (readJson<Task[]>(KEYS.tasks) ?? []).map(normalizeTask);
   },
   async writeTasks(tasks) {
     writeJson(KEYS.tasks, tasks);
   },
   async listGroups() {
     ensureSeeded();
-    const groups = readJson<Group[]>(KEYS.groups);
-    if (groups && groups.length === 2) return groups;
-    writeJson(KEYS.groups, DEFAULT_GROUPS);
-    return DEFAULT_GROUPS;
+    const merged = mergeDefaultGroups(readJson<Group[]>(KEYS.groups));
+    writeJson(KEYS.groups, merged);
+    return merged;
   },
   async writeGroups(groups) {
     writeJson(KEYS.groups, groups);

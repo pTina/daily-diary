@@ -28,7 +28,7 @@ body::before { content: ""; pointer-events: none; position: fixed; inset: 0; z-i
 button,
 input,
 select,
-textarea { font: inherit; }
+textarea { font-family: inherit; font-weight: inherit; }
 :focus-visible { outline: 2px solid #2B2D31; outline-offset: 2px; }
 
 /* 날짜 필드: 캘린더 선택 영역을 입력칸 전체로 */

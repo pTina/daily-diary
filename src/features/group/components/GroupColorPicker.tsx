@@ -2,11 +2,11 @@ import { GROUP_COLOR_PRESETS, type Group } from '@/shared/types/group';
 
 type Props = {
   group: Group;
-  otherColor: string;
+  otherColors: string[];
   onChange: (color: string) => void;
 };
 
-export function GroupColorPicker({ group, otherColor, onChange }: Props) {
+export function GroupColorPicker({ group, otherColors, onChange }: Props) {
   return (
     <fieldset>
       <legend className="mb-3 flex items-center gap-2 text-sm font-medium text-ink">
@@ -15,7 +15,7 @@ export function GroupColorPicker({ group, otherColor, onChange }: Props) {
       </legend>
       <div className="flex flex-wrap gap-2">
         {GROUP_COLOR_PRESETS.map((color) => {
-          const taken = color === otherColor;
+          const taken = otherColors.includes(color);
           const selected = color === group.color;
           return (
             <button

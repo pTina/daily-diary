@@ -1,6 +1,6 @@
 import { requireUid } from '@/shared/lib/auth';
 import { db } from '@/shared/lib/firebase';
-import { DEFAULT_GROUPS, type Group } from '@/shared/types/group';
+import { DEFAULT_GROUPS, HOLIDAY_GROUP_ID, mergeDefaultGroups, type Group } from '@/shared/types/group';
 import { DEFAULT_SETTINGS, type AppSettings } from '@/shared/types/settings';
 import type { Task } from '@/shared/types/task';
 import {
@@ -53,8 +53,17 @@ function sameJson(a: unknown, b: unknown) {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
+function normalizeTask(task: Task): Task {
+  if (!task.holiday) return task;
+  const { holiday: _holiday, ...rest } = task;
+  return { ...rest, groupId: HOLIDAY_GROUP_ID };
+}
+
 async function seedIfNeeded() {
-  if (cache.groups && cache.groups.length === 2 && cache.settings) return;
+  const hasDefaults = cache.groups
+    ? DEFAULT_GROUPS.every((group) => cache.groups?.some((item) => item.id === group.id))
+    : false;
+  if (hasDefaults && cache.settings) return;
 
   const [groupSnap, settingsSnap] = await Promise.all([getDocs(groupsCol()), getDoc(settingsRef())]);
 
@@ -66,7 +75,16 @@ async function seedIfNeeded() {
     await batch.commit();
     cache.groups = DEFAULT_GROUPS;
   } else {
-    cache.groups = groupSnap.docs.map((item) => item.data() as Group);
+    const merged = mergeDefaultGroups(groupSnap.docs.map((item) => item.data() as Group));
+    const missing = merged.filter((group) => !groupSnap.docs.some((item) => item.id === group.id));
+    if (missing.length > 0) {
+      const batch = writeBatch(db);
+      missing.forEach((group) => {
+        batch.set(doc(groupsCol(), group.id), group);
+      });
+      await batch.commit();
+    }
+    cache.groups = merged;
   }
 
   if (!settingsSnap.exists()) {
@@ -81,7 +99,7 @@ export const firestoreAdapter: StorageAdapter = {
   async listTasks() {
     if (cache.tasks) return cache.tasks;
     const snap = await getDocs(tasksCol());
-    cache.tasks = snap.docs.map((item) => item.data() as Task);
+    cache.tasks = snap.docs.map((item) => normalizeTask(item.data() as Task));
     return cache.tasks;
   },
 
@@ -137,12 +155,12 @@ export const firestoreAdapter: StorageAdapter = {
 export function subscribeUserData(onChange: () => void): Unsubscribe {
   const unsubs = [
     onSnapshot(tasksCol(), (snap) => {
-      cache.tasks = snap.docs.map((item) => item.data() as Task);
+      cache.tasks = snap.docs.map((item) => normalizeTask(item.data() as Task));
       onChange();
     }),
     onSnapshot(groupsCol(), (snap) => {
       if (!snap.empty) {
-        cache.groups = snap.docs.map((item) => item.data() as Group);
+        cache.groups = mergeDefaultGroups(snap.docs.map((item) => item.data() as Group));
       }
       onChange();
     }),
