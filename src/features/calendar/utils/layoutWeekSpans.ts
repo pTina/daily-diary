@@ -35,7 +35,7 @@ export function layoutWeekSpans(week: CalendarCell[], tasks: TaskInstance[]): We
     return b.spanEnd.localeCompare(a.spanEnd);
   });
 
-  const laneEnds: string[] = [];
+  const occupied: boolean[][] = [];
   const spans: WeekSpan[] = [];
 
   for (const task of items) {
@@ -45,13 +45,9 @@ export function layoutWeekSpans(week: CalendarCell[], tasks: TaskInstance[]): We
     const endCol = week.findIndex((cell) => cell.date === end);
     if (startCol < 0 || endCol < 0) continue;
 
-    let lane = laneEnds.findIndex((occupied) => occupied < start);
-    if (lane < 0) {
-      lane = laneEnds.length;
-      laneEnds.push(end);
-    } else {
-      laneEnds[lane] = end;
-    }
+    let lane = 0;
+    while (laneRangeTaken(occupied[lane], startCol, endCol)) lane += 1;
+    occupyLane(occupied, lane, startCol, endCol);
 
     spans.push({
       key: `${task.sourceId}__${task.spanStart}`,
@@ -73,4 +69,19 @@ function maxDate(a: string, b: string) {
 
 function minDate(a: string, b: string) {
   return compareISODate(a, b) <= 0 ? a : b;
+}
+
+function laneRangeTaken(row: boolean[] | undefined, startCol: number, endCol: number) {
+  if (!row) return false;
+  for (let col = startCol; col <= endCol; col += 1) {
+    if (row[col]) return true;
+  }
+  return false;
+}
+
+function occupyLane(occupied: boolean[][], lane: number, startCol: number, endCol: number) {
+  if (!occupied[lane]) occupied[lane] = Array(7).fill(false);
+  for (let col = startCol; col <= endCol; col += 1) {
+    occupied[lane][col] = true;
+  }
 }
