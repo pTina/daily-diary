@@ -5,9 +5,10 @@ import { useUiStore } from '@/store/useUiStore';
 
 type Props = {
   cell: CalendarCell;
+  holiday?: boolean;
 };
 
-export function DayCell({ cell }: Props) {
+export function DayCell({ cell, holiday = false }: Props) {
   const selectedDate = useUiStore((state) => state.selectedDate);
   const setSelectedDate = useUiStore((state) => state.setSelectedDate);
   const openDayPanel = useUiStore((state) => state.openDayPanel);
@@ -39,11 +40,11 @@ export function DayCell({ cell }: Props) {
           className={`grid h-7 w-7 place-items-center rounded-full text-sm tabular-nums ${
             isToday
               ? 'bg-accent font-semibold text-ink'
-              : cell.inMonth
-                ? sunday
-                  ? 'text-[#B56B6B]'
-                  : 'text-ink'
-                : 'text-faint'
+              : holiday || (cell.inMonth && sunday)
+                ? 'text-sunday'
+                : cell.inMonth
+                  ? 'text-ink'
+                  : 'text-faint'
           }`}
         >
           {day}

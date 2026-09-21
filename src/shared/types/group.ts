@@ -40,4 +40,5 @@ export const GROUP_COLOR_PRESETS = [
   '#D7E4C0',
   '#F2CBD8',
   '#D2D8EA',
+  '#E8A3A3',
 ];

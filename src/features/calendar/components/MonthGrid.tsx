@@ -2,10 +2,10 @@ import { DayCell } from '@/features/calendar/components/DayCell';
 import { useMonthMatrix } from '@/features/calendar/hooks/useMonthMatrix';
 import { layoutWeekSpans, type WeekSpan } from '@/features/calendar/utils/layoutWeekSpans';
 import { addMonths } from '@/shared/lib/dateUtils';
-import type { Group } from '@/shared/types/group';
+import { isHolidayGroup, type Group } from '@/shared/types/group';
 import type { TaskInstance } from '@/shared/types/task';
 import { useUiStore } from '@/store/useUiStore';
-import { useRef, type MouseEvent, type PointerEvent } from 'react';
+import { useMemo, useRef, type MouseEvent, type PointerEvent } from 'react';
 
 type Props = {
   currentMonth: string;
@@ -26,6 +26,10 @@ const COMPACT_GAP = 2;
 export function MonthGrid({ currentMonth, selectedDate, mode, tasks, groups, compact }: Props) {
   const { weekdays, weeks } = useMonthMatrix(currentMonth, mode, selectedDate);
   const setCurrentMonth = useUiStore((state) => state.setCurrentMonth);
+  const holidayDates = useMemo(
+    () => new Set(tasks.filter((task) => isHolidayGroup(task.groupId)).map((task) => task.date)),
+    [tasks],
+  );
   const start = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
 
@@ -65,7 +69,7 @@ export function MonthGrid({ currentMonth, selectedDate, mode, tasks, groups, com
         {weekdays.map((label, index) => (
           <div
             key={label}
-            className={`py-2 text-center text-xs font-medium ${index === 0 ? 'text-[#B56B6B]' : 'text-muted'}`}
+            className={`py-2 text-center text-xs font-medium ${index === 0 ? 'text-sunday' : 'text-muted'}`}
           >
             {label}
           </div>
@@ -78,6 +82,7 @@ export function MonthGrid({ currentMonth, selectedDate, mode, tasks, groups, com
             week={week}
             tasks={tasks}
             groups={groups}
+            holidayDates={holidayDates}
             compact={compact}
           />
         ))}
@@ -90,11 +95,13 @@ function WeekRow({
   week,
   tasks,
   groups,
+  holidayDates,
   compact,
 }: {
   week: { date: string; inMonth: boolean }[];
   tasks: TaskInstance[];
   groups: Group[];
+  holidayDates: Set<string>;
   compact: boolean;
 }) {
   const openTaskForm = useUiStore((state) => state.openTaskForm);
@@ -110,7 +117,7 @@ function WeekRow({
   return (
     <div className="relative grid min-h-0 flex-1 grid-cols-7">
       {week.map((cell) => (
-        <DayCell key={cell.date} cell={cell} />
+        <DayCell key={cell.date} cell={cell} holiday={holidayDates.has(cell.date)} />
       ))}
       <div className="pointer-events-none absolute inset-x-0 top-9 bottom-1 lg:top-10">
         {visible.map((span) => {
