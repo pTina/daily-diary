@@ -17,7 +17,7 @@ export function useReminderScheduler() {
   const { data: settings } = useSettings();
 
   useEffect(() => {
-    if (!settings || Notification.permission !== 'granted') return;
+    if (!settings || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
 
     const tick = async () => {
       const from = todayISO();

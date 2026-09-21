@@ -1,5 +1,5 @@
 import { LoginPage } from '@/pages/LoginPage';
-import { initAuthPersistence, subscribeAuth } from '@/shared/lib/auth';
+import { completeGoogleRedirect, initAuthPersistence, subscribeAuth } from '@/shared/lib/auth';
 import { queryClient } from '@/shared/lib/queryClient';
 import { clearStorageCache, subscribeUserData } from '@/shared/storage/firestoreAdapter';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -17,41 +17,57 @@ function FirebaseGate({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   useEffect(() => {
     let stopData = () => {};
+    let stopAuth = () => {};
+    let cancelled = false;
 
-    void initAuthPersistence();
-
-    const stopAuth = subscribeAuth((user) => {
-      stopData();
-      clearStorageCache();
-      void queryClient.removeQueries({ queryKey: ['tasks'] });
-      void queryClient.removeQueries({ queryKey: ['groups'] });
-      void queryClient.removeQueries({ queryKey: ['settings'] });
-
-      if (!user) {
-        setSignedIn(false);
-        setReady(true);
-        return;
-      }
-
+    void (async () => {
       try {
-        stopData = subscribeUserData(() => {
-          void queryClient.invalidateQueries({ queryKey: ['tasks'] });
-          void queryClient.invalidateQueries({ queryKey: ['groups'] });
-          void queryClient.invalidateQueries({ queryKey: ['settings'] });
-        });
-        setSignedIn(true);
-        setReady(true);
-        setError(null);
+        await initAuthPersistence();
+        await completeGoogleRedirect();
       } catch (caught) {
-        setError(caught instanceof Error ? caught.message : 'Firebase 연결에 실패했습니다.');
-        setReady(true);
+        if (!cancelled) {
+          setLoginError(caught instanceof Error ? caught.message : '로그인에 실패했습니다.');
+        }
       }
-    });
+
+      if (cancelled) return;
+
+      stopAuth = subscribeAuth((user) => {
+        stopData();
+        clearStorageCache();
+        void queryClient.removeQueries({ queryKey: ['tasks'] });
+        void queryClient.removeQueries({ queryKey: ['groups'] });
+        void queryClient.removeQueries({ queryKey: ['settings'] });
+
+        if (!user) {
+          setSignedIn(false);
+          setReady(true);
+          return;
+        }
+
+        try {
+          stopData = subscribeUserData(() => {
+            void queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            void queryClient.invalidateQueries({ queryKey: ['groups'] });
+            void queryClient.invalidateQueries({ queryKey: ['settings'] });
+          });
+          setSignedIn(true);
+          setReady(true);
+          setError(null);
+          setLoginError(null);
+        } catch (caught) {
+          setError(caught instanceof Error ? caught.message : 'Firebase 연결에 실패했습니다.');
+          setReady(true);
+        }
+      });
+    })();
 
     return () => {
+      cancelled = true;
       stopAuth();
       stopData();
     };
@@ -72,7 +88,7 @@ function FirebaseGate({ children }: { children: ReactNode }) {
   }
 
   if (!signedIn) {
-    return <LoginPage />;
+    return <LoginPage initialError={loginError} />;
   }
 
   return children;

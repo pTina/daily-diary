@@ -2,8 +2,8 @@ import { signInWithGoogle } from '@/shared/lib/auth';
 import { Button } from '@/shared/ui/Button';
 import { useState } from 'react';
 
-export function LoginPage() {
-  const [error, setError] = useState<string | null>(null);
+export function LoginPage({ initialError = null }: { initialError?: string | null }) {
+  const [error, setError] = useState<string | null>(initialError);
   const [pending, setPending] = useState(false);
 
   return (

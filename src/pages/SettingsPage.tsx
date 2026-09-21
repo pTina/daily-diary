@@ -15,7 +15,9 @@ export function SettingsPage() {
   const updateColor = useUpdateGroupColor();
   const queryClient = useQueryClient();
   const { user } = useAuthUser();
-  const [permission, setPermission] = useState(Notification.permission);
+  const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(() =>
+    typeof Notification === 'undefined' ? 'unsupported' : Notification.permission,
+  );
   const [authError, setAuthError] = useState<string | null>(null);
 
   return (
@@ -76,13 +78,14 @@ export function SettingsPage() {
         </p>
         <Button
           variant="secondary"
-          disabled={permission === 'granted'}
+          disabled={permission === 'granted' || permission === 'unsupported'}
           onClick={async () => {
+            if (typeof Notification === 'undefined') return;
             const next = await Notification.requestPermission();
             setPermission(next);
           }}
         >
-          {permission === 'granted' ? '알림이 허용됨' : '알림 권한 요청'}
+          {permission === 'granted' ? '알림이 허용됨' : permission === 'unsupported' ? '이 브라우저는 알림을 지원하지 않음' : '알림 권한 요청'}
         </Button>
         {settings ? (
           <TextField
@@ -104,7 +107,8 @@ export function SettingsPage() {
   );
 }
 
-function permissionLabel(permission: NotificationPermission) {
+function permissionLabel(permission: NotificationPermission | 'unsupported') {
+  if (permission === 'unsupported') return '지원하지 않음';
   if (permission === 'granted') return '허용';
   if (permission === 'denied') return '거부';
   return '아직 요청하지 않음';
