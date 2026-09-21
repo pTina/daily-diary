@@ -16,12 +16,13 @@ export function TaskItem({ task, group, onToggle, onOpen }: Props) {
     id: task.instanceId,
     data: { groupId: task.groupId },
   });
+  const memo = task.memo?.trim();
 
   return (
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`relative flex items-center gap-3 rounded-xl bg-paper py-2 pr-2 pl-3 ${isDragging ? 'z-10 shadow-panel' : ''}`}
+      className={`relative flex gap-3 rounded-xl bg-paper py-2 pr-2 pl-3 ${memo ? 'items-start' : 'items-center'} ${isDragging ? 'z-10 shadow-panel' : ''}`}
     >
       <span
         className="absolute inset-y-2 left-0 w-[3px] rounded-full"
@@ -37,8 +38,8 @@ export function TaskItem({ task, group, onToggle, onOpen }: Props) {
       <button
         type="button"
         onClick={onOpen}
-        className="min-w-0 flex-1 text-left"
-        aria-label={`${group.name}, ${task.time ? `${task.time} ` : ''}${task.title}${task.done ? ', 완료됨' : ''}`}
+        className="min-w-0 flex-1 py-0.5 text-left"
+        aria-label={`${group.name}, ${task.time ? `${task.time} ` : ''}${task.title}${memo ? `, 메모 ${memo}` : ''}${task.done ? ', 완료됨' : ''}`}
       >
         <span className="flex items-baseline gap-2">
           {task.time ? (
@@ -50,6 +51,11 @@ export function TaskItem({ task, group, onToggle, onOpen }: Props) {
             {task.title}
           </span>
         </span>
+        {memo ? (
+          <span className={`mt-3 block whitespace-pre-wrap break-words text-sm ${task.done ? 'text-faint' : 'text-muted'}`}>
+            {memo}
+          </span>
+        ) : null}
       </button>
       <button
         type="button"
