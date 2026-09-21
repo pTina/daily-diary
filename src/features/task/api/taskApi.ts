@@ -134,7 +134,7 @@ function fromDraft(id: string, draft: TaskDraft, order: number): Task {
     done: false,
     order,
     recurrence: draft.recurrenceEnabled
-      ? { freq: draft.freq, until: draft.until || undefined, exdates: [] }
+      ? { freq: draft.freq, ...(draft.until ? { until: draft.until } : {}), exdates: [] }
       : undefined,
     reminder: draft.reminderEnabled ? { enabled: true, offsetMin: draft.offsetMin } : undefined,
     memo: draft.memo.trim() || undefined,

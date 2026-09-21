@@ -1,5 +1,6 @@
 import type { CalendarCell } from '@/features/calendar/hooks/useMonthMatrix';
 import { compareISODate } from '@/shared/lib/dateUtils';
+import { isBirthdayGroup, isHolidayGroup } from '@/shared/types/group';
 import type { TaskInstance } from '@/shared/types/task';
 
 export type WeekSpan = {
@@ -25,6 +26,9 @@ export function layoutWeekSpans(week: CalendarCell[], tasks: TaskInstance[]): We
   }
 
   const items = [...unique.values()].sort((a, b) => {
+    const rank = (task: TaskInstance) =>
+      isBirthdayGroup(task.groupId) || isHolidayGroup(task.groupId) ? 0 : 1;
+    if (rank(a) !== rank(b)) return rank(a) - rank(b);
     const startA = maxDate(a.spanStart, weekStart);
     const startB = maxDate(b.spanStart, weekStart);
     if (startA !== startB) return startA.localeCompare(startB);

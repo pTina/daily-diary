@@ -41,6 +41,16 @@ export function addMonths(yearMonth: string, amount: number): string {
   return addMonthsToDate(`${yearMonth}-01`, amount).slice(0, 7);
 }
 
+export function addYearsToDate(value: string, amount: number): string {
+  const date = parseISODate(value);
+  const day = date.getDate();
+  date.setDate(1);
+  date.setFullYear(date.getFullYear() + amount);
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  date.setDate(Math.min(day, lastDay));
+  return toISODate(date);
+}
+
 export function eachDayInclusive(from: string, to: string): string[] {
   if (!from) return [];
   const end = to && compareISODate(to, from) > 0 ? to : from;

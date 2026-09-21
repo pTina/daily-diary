@@ -33,6 +33,7 @@ export function CalendarPage() {
   const setPendingDraft = useUiStore((state) => state.setPendingDraft);
   const setPendingScope = useUiStore((state) => state.setPendingScope);
   const closeModal = useUiStore((state) => state.closeModal);
+  const setSelectedDate = useUiStore((state) => state.setSelectedDate);
 
   const from = startOfWeek(`${currentMonth}-01`);
   const to = addDays(from, 41);
@@ -55,6 +56,7 @@ export function CalendarPage() {
 
   const handleCreate = (draft: TaskDraft) => {
     mutations.createTask.mutate(draft);
+    setSelectedDate(draft.date);
     closeModal();
   };
 
@@ -72,6 +74,7 @@ export function CalendarPage() {
       instanceDate: modal.name === 'task-form' ? modal.instanceDate ?? source.date : source.date,
       scope: 'all',
     });
+    setSelectedDate(draft.date);
     closeModal();
   };
 

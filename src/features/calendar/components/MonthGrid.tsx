@@ -2,7 +2,7 @@ import { DayCell } from '@/features/calendar/components/DayCell';
 import { useMonthMatrix } from '@/features/calendar/hooks/useMonthMatrix';
 import { layoutWeekSpans, type WeekSpan } from '@/features/calendar/utils/layoutWeekSpans';
 import { addMonths } from '@/shared/lib/dateUtils';
-import { isHolidayGroup, type Group } from '@/shared/types/group';
+import { isBirthdayGroup, isHolidayGroup, type Group } from '@/shared/types/group';
 import type { TaskInstance } from '@/shared/types/task';
 import { useUiStore } from '@/store/useUiStore';
 import { useMemo, useRef, type MouseEvent, type PointerEvent } from 'react';
@@ -171,5 +171,11 @@ function WeekRow({
 }
 
 function SpanLabel({ span }: { span: WeekSpan }) {
-  return <span className="truncate">{span.task.title}</span>;
+  const prefix = isBirthdayGroup(span.task.groupId) ? '🎂 ' : '';
+  return (
+    <span className="truncate">
+      {prefix}
+      {span.task.title}
+    </span>
+  );
 }

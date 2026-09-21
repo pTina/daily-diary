@@ -1,5 +1,5 @@
 import { nowMonth, todayISO } from '@/shared/lib/dateUtils';
-import { HOLIDAY_GROUP_ID, PERSONAL_GROUP_ID, WORK_GROUP_ID } from '@/shared/types/group';
+import { BIRTHDAY_GROUP_ID, HOLIDAY_GROUP_ID, PERSONAL_GROUP_ID, WORK_GROUP_ID } from '@/shared/types/group';
 import type { RecurrenceScope, TaskDraft } from '@/shared/types/task';
 import { create } from 'zustand';
 
@@ -39,6 +39,7 @@ export const useUiStore = create<UiState>((set) => ({
     [WORK_GROUP_ID]: true,
     [PERSONAL_GROUP_ID]: true,
     [HOLIDAY_GROUP_ID]: true,
+    [BIRTHDAY_GROUP_ID]: true,
   },
   dayPanelOpen: false,
   modal: { name: 'closed' },

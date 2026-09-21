@@ -1,4 +1,4 @@
-export type RecurrenceFreq = 'daily' | 'weekly' | 'monthly';
+export type RecurrenceFreq = 'daily' | 'weekly' | 'monthly' | 'yearly';
 
 export type RecurrenceScope = 'this' | 'future' | 'all';
 

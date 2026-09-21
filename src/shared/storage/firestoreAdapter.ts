@@ -45,8 +45,13 @@ function settingsRef() {
   return doc(collection(userRef(), 'settings'), SETTINGS_DOC);
 }
 
-function omitUndefined<T extends object>(value: T) {
-  return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined)) as T;
+function omitUndefined<T>(value: T): T {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return value;
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([, item]) => item !== undefined)
+      .map(([key, item]) => [key, omitUndefined(item)]),
+  ) as T;
 }
 
 function sameJson(a: unknown, b: unknown) {

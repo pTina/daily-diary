@@ -1,4 +1,4 @@
-import { addDays, addMonthsToDate, compareISODate, eachDayInclusive } from '@/shared/lib/dateUtils';
+import { addDays, addMonthsToDate, addYearsToDate, compareISODate, eachDayInclusive } from '@/shared/lib/dateUtils';
 import type { Task, TaskInstance } from '@/shared/types/task';
 
 export function toInstance(
@@ -37,8 +37,11 @@ export function expandRecurrence(task: Task, from: string, to: string): TaskInst
   }
 
   const instances: TaskInstance[] = [];
-  const until = task.recurrence.until;
-  const exdates = new Set(task.recurrence.exdates);
+  const until =
+    task.recurrence.until && compareISODate(task.recurrence.until, task.date) >= 0
+      ? task.recurrence.until
+      : undefined;
+  const exdates = new Set(task.recurrence.exdates ?? []);
   let cursor = task.date;
   let guard = 0;
 
@@ -62,5 +65,6 @@ export function expandAll(tasks: Task[], from: string, to: string): TaskInstance
 function nextOccurrence(date: string, freq: NonNullable<Task['recurrence']>['freq']): string {
   if (freq === 'daily') return addDays(date, 1);
   if (freq === 'weekly') return addDays(date, 7);
+  if (freq === 'yearly') return addYearsToDate(date, 1);
   return addMonthsToDate(date, 1);
 }

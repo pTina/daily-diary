@@ -7,15 +7,21 @@ export type Group = {
 export const WORK_GROUP_ID = 'g_work';
 export const PERSONAL_GROUP_ID = 'g_personal';
 export const HOLIDAY_GROUP_ID = 'g_holiday';
+export const BIRTHDAY_GROUP_ID = 'g_birthday';
 
 export const DEFAULT_GROUPS: Group[] = [
   { id: WORK_GROUP_ID, name: '회사', color: '#C0E8DD' },
   { id: PERSONAL_GROUP_ID, name: '개인', color: '#A3C6EB' },
   { id: HOLIDAY_GROUP_ID, name: '휴일', color: '#F3D1C8' },
+  { id: BIRTHDAY_GROUP_ID, name: '생일', color: '#F2CBD8' },
 ];
 
 export function isHolidayGroup(groupId: string) {
   return groupId === HOLIDAY_GROUP_ID;
+}
+
+export function isBirthdayGroup(groupId: string) {
+  return groupId === BIRTHDAY_GROUP_ID;
 }
 
 export function mergeDefaultGroups(groups: Group[] | null | undefined): Group[] {

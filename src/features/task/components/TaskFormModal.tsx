@@ -9,7 +9,7 @@ import { Switch } from '@/shared/ui/Switch';
 import { TextField } from '@/shared/ui/TextField';
 import { TimeWheel } from '@/shared/ui/TimeWheel';
 import { addDays, eachDayInclusive, snapToTimeStep } from '@/shared/lib/dateUtils';
-import { isHolidayGroup } from '@/shared/types/group';
+import { isBirthdayGroup, isHolidayGroup, WORK_GROUP_ID } from '@/shared/types/group';
 import type { TaskDraft } from '@/shared/types/task';
 import { useUiStore } from '@/store/useUiStore';
 import { useEffect, useMemo, useState } from 'react';
@@ -46,7 +46,7 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
   const instanceDate = open ? modal.instanceDate ?? source?.date ?? selectedDate : selectedDate;
 
   const initial = useMemo(() => {
-    if (!source) return emptyDraft(selectedDate, groups[0]?.id ?? 'g_work');
+    if (!source) return emptyDraft(selectedDate, WORK_GROUP_ID);
     const start = source.recurrence ? instanceDate : source.date;
     const span = source.endDate && source.endDate > source.date
       ? eachDayInclusive(source.date, source.endDate).length - 1
@@ -65,7 +65,7 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
       offsetMin: source.reminder?.offsetMin ?? 10,
       memo: source.memo ?? '',
     } satisfies TaskDraft;
-  }, [source, selectedDate, groups, instanceDate]);
+  }, [source, selectedDate, instanceDate]);
 
   const [draft, setDraft] = useState(initial);
   const holiday = isHolidayGroup(draft.groupId);
@@ -122,7 +122,10 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
             setDraft((current) => ({
               ...current,
               date,
-              endDate: current.endDate && current.endDate >= date ? current.endDate : date,
+              endDate:
+                !current.endDate || current.endDate === current.date || current.endDate < date
+                  ? date
+                  : current.endDate,
             }));
           }}
         />
@@ -147,6 +150,9 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
               ...current,
               groupId,
               timeEnabled: isHolidayGroup(groupId) ? false : current.timeEnabled,
+              ...(isBirthdayGroup(groupId)
+                ? { recurrenceEnabled: true, freq: 'yearly' as const }
+                : {}),
             }))
           }
         />
@@ -184,6 +190,7 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
                 { value: 'daily', label: '매일' },
                 { value: 'weekly', label: '매주' },
                 { value: 'monthly', label: '매월' },
+                { value: 'yearly', label: '매년' },
               ]}
               onChange={(event) => set('freq', event.target.value as TaskDraft['freq'])}
             />
