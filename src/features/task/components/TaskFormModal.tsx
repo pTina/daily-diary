@@ -2,16 +2,16 @@ import { useTaskSources } from '@/features/task/hooks/useTasks';
 import { useGroups } from '@/features/group/hooks/useGroups';
 import { Button } from '@/shared/ui/Button';
 import { Modal } from '@/shared/ui/Modal';
+import { DateField } from '@/shared/ui/DateField';
 import { RadioGroup } from '@/shared/ui/RadioGroup';
 import { Select } from '@/shared/ui/Select';
 import { Switch } from '@/shared/ui/Switch';
 import { TextField } from '@/shared/ui/TextField';
-import { formatWeekdayParen, snapToTimeStep, timeOptions } from '@/shared/lib/dateUtils';
+import { TimeWheel } from '@/shared/ui/TimeWheel';
+import { snapToTimeStep } from '@/shared/lib/dateUtils';
 import type { TaskDraft } from '@/shared/types/task';
 import { useUiStore } from '@/store/useUiStore';
 import { useEffect, useMemo, useState } from 'react';
-
-const TIME_CHOICES = timeOptions(5);
 
 type Props = {
   onCreate: (draft: TaskDraft) => void;
@@ -106,12 +106,11 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
           placeholder="무엇을 할까요?"
           onChange={(event) => set('title', event.target.value)}
         />
-        <TextField
+        <DateField
           id="task-date"
-          label={draft.date ? `날짜 ${formatWeekdayParen(draft.date)}` : '날짜'}
-          type="date"
+          label="날짜"
           value={draft.date}
-          onChange={(event) => set('date', event.target.value)}
+          onChange={(date) => set('date', date)}
         />
         <RadioGroup
           name="task-group"
@@ -131,12 +130,11 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
           onChange={(checked) => set('timeEnabled', checked)}
         />
         {draft.timeEnabled ? (
-          <Select
+          <TimeWheel
             id="task-time-value"
             label="시간"
             value={snapToTimeStep(draft.time)}
-            options={TIME_CHOICES}
-            onChange={(event) => set('time', event.target.value)}
+            onChange={(time) => set('time', time)}
           />
         ) : null}
         <Switch
@@ -158,12 +156,11 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
               ]}
               onChange={(event) => set('freq', event.target.value as TaskDraft['freq'])}
             />
-            <TextField
+            <DateField
               id="task-until"
-              label={draft.until ? `종료일 ${formatWeekdayParen(draft.until)}` : '종료일'}
-              type="date"
+              label="종료일"
               value={draft.until}
-              onChange={(event) => set('until', event.target.value)}
+              onChange={(until) => set('until', until)}
             />
           </>
         ) : null}
