@@ -9,13 +9,6 @@ type Props = {
 
 export const SNAP_POINTS = [0.22, 0.48, 0.78] as const;
 
-export const SHEET_PADDING: Record<SheetSnap, string> = {
-  closed: '32px',
-  peek: '22%',
-  half: '48%',
-  full: '78%',
-};
-
 const POINT_BY_SNAP: Record<Exclude<SheetSnap, 'closed'>, number> = {
   peek: SNAP_POINTS[0],
   half: SNAP_POINTS[1],

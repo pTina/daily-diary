@@ -1,6 +1,7 @@
 import { CalendarHeader } from '@/features/calendar/components/CalendarHeader';
+import { CalendarViewport } from '@/features/calendar/components/CalendarViewport';
 import { MonthGrid } from '@/features/calendar/components/MonthGrid';
-import { BottomSheet, SHEET_PADDING } from '@/features/task/components/BottomSheet';
+import { BottomSheet } from '@/features/task/components/BottomSheet';
 import { DeleteConfirmDialog } from '@/features/task/components/DeleteConfirmDialog';
 import { RecurrenceScopeDialog } from '@/features/task/components/RecurrenceScopeDialog';
 import { TaskFormModal } from '@/features/task/components/TaskFormModal';
@@ -20,7 +21,6 @@ export function CalendarPage() {
   const selectedDate = useUiStore((state) => state.selectedDate);
   const currentMonth = useUiStore((state) => state.currentMonth);
   const groupFilters = useUiStore((state) => state.groupFilters);
-  const sheetSnap = useUiStore((state) => state.sheetSnap);
   const modal = useUiStore((state) => state.modal);
   const pendingDraft = useUiStore((state) => state.pendingDraft);
   const pendingScope = useUiStore((state) => state.pendingScope);
@@ -115,24 +115,21 @@ export function CalendarPage() {
     closeModal();
   };
 
-  const calendarMode = !isDesktop && sheetSnap === 'full' ? 'week' : 'month';
-
   return (
     <div className="relative flex h-full flex-col bg-canvas">
       <CalendarHeader />
       <div className="flex min-h-0 flex-1">
-        <div
-          className="flex min-h-0 min-w-0 flex-1 flex-col lg:pb-0"
-          style={{ paddingBottom: isDesktop ? 0 : SHEET_PADDING[sheetSnap] }}
-        >
-          <MonthGrid
-            currentMonth={currentMonth}
-            selectedDate={selectedDate}
-            mode={calendarMode}
-            compact={!isDesktop}
-            groups={groups}
-            tasks={filteredInstances}
-          />
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <CalendarViewport>
+            <MonthGrid
+              currentMonth={currentMonth}
+              selectedDate={selectedDate}
+              mode="month"
+              compact={!isDesktop}
+              groups={groups}
+              tasks={filteredInstances}
+            />
+          </CalendarViewport>
         </div>
         <div className="hidden w-[372px] shrink-0 border-l border-line lg:block">
           <TaskPanel
