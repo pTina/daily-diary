@@ -126,6 +126,7 @@ function fromDraft(id: string, draft: TaskDraft, order: number): Task {
     title: draft.title.trim(),
     groupId: draft.groupId,
     date: draft.date,
+    endDate: draft.endDate && draft.endDate > draft.date ? draft.endDate : undefined,
     time: draft.timeEnabled ? draft.time : undefined,
     done: false,
     order,

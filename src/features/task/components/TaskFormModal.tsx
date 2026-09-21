@@ -8,7 +8,7 @@ import { Select } from '@/shared/ui/Select';
 import { Switch } from '@/shared/ui/Switch';
 import { TextField } from '@/shared/ui/TextField';
 import { TimeWheel } from '@/shared/ui/TimeWheel';
-import { snapToTimeStep } from '@/shared/lib/dateUtils';
+import { addDays, eachDayInclusive, snapToTimeStep } from '@/shared/lib/dateUtils';
 import type { TaskDraft } from '@/shared/types/task';
 import { useUiStore } from '@/store/useUiStore';
 import { useEffect, useMemo, useState } from 'react';
@@ -23,6 +23,7 @@ const emptyDraft = (date: string, groupId: string): TaskDraft => ({
   title: '',
   groupId,
   date,
+  endDate: date,
   timeEnabled: false,
   time: '09:00',
   recurrenceEnabled: false,
@@ -45,10 +46,15 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
 
   const initial = useMemo(() => {
     if (!source) return emptyDraft(selectedDate, groups[0]?.id ?? 'g_work');
+    const start = source.recurrence ? instanceDate : source.date;
+    const span = source.endDate && source.endDate > source.date
+      ? eachDayInclusive(source.date, source.endDate).length - 1
+      : 0;
     return {
       title: source.title,
       groupId: source.groupId,
-      date: instanceDate,
+      date: start,
+      endDate: addDays(start, span),
       timeEnabled: Boolean(source.time),
       time: source.time ?? '09:00',
       recurrenceEnabled: Boolean(source.recurrence),
@@ -108,9 +114,22 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
         />
         <DateField
           id="task-date"
-          label="날짜"
+          label="시작일"
           value={draft.date}
-          onChange={(date) => set('date', date)}
+          onChange={(date) => {
+            setDraft((current) => ({
+              ...current,
+              date,
+              endDate: current.endDate && current.endDate >= date ? current.endDate : date,
+            }));
+          }}
+        />
+        <DateField
+          id="task-end-date"
+          label="종료일"
+          value={draft.endDate}
+          min={draft.date}
+          onChange={(endDate) => set('endDate', endDate < draft.date ? draft.date : endDate)}
         />
         <RadioGroup
           name="task-group"

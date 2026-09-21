@@ -4,10 +4,11 @@ type Props = {
   id: string;
   label: string;
   value: string;
+  min?: string;
   onChange: (value: string) => void;
 };
 
-export function DateField({ id, label, value, onChange }: Props) {
+export function DateField({ id, label, value, min, onChange }: Props) {
   return (
     <div className="form-group flex flex-col gap-1.5">
       <label htmlFor={id} className="text-sm font-medium text-ink">
@@ -24,6 +25,7 @@ export function DateField({ id, label, value, onChange }: Props) {
           id={id}
           type="date"
           value={value}
+          min={min}
           aria-label={`${label}${value ? ` ${value} ${formatWeekdayParen(value)}` : ''}`}
           onChange={(event) => onChange(event.target.value)}
           className="absolute inset-0 cursor-pointer opacity-0"

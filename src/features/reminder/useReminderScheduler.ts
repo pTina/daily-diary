@@ -28,7 +28,7 @@ export function useReminderScheduler() {
       let changed = false;
 
       for (const task of instances) {
-        if (!task.reminder?.enabled || task.done) continue;
+        if (!task.reminder?.enabled || task.done || task.instanceDate !== task.spanStart) continue;
         const base = task.time
           ? combineDateTime(task.instanceDate, task.time)
           : combineDateTime(task.instanceDate, settings.defaultReminderTime);

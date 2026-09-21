@@ -1,6 +1,6 @@
 import { CalendarHeader } from '@/features/calendar/components/CalendarHeader';
 import { MonthGrid } from '@/features/calendar/components/MonthGrid';
-import { BottomSheet } from '@/features/task/components/BottomSheet';
+import { BottomSheet, SHEET_PADDING } from '@/features/task/components/BottomSheet';
 import { DeleteConfirmDialog } from '@/features/task/components/DeleteConfirmDialog';
 import { RecurrenceScopeDialog } from '@/features/task/components/RecurrenceScopeDialog';
 import { TaskFormModal } from '@/features/task/components/TaskFormModal';
@@ -123,7 +123,7 @@ export function CalendarPage() {
       <div className="flex min-h-0 flex-1">
         <div
           className="flex min-h-0 min-w-0 flex-1 flex-col lg:pb-0"
-          style={{ paddingBottom: isDesktop ? 0 : { peek: '22%', half: '48%', full: '78%' }[sheetSnap] }}
+          style={{ paddingBottom: isDesktop ? 0 : SHEET_PADDING[sheetSnap] }}
         >
           <MonthGrid
             currentMonth={currentMonth}

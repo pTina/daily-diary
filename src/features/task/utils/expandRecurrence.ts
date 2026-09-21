@@ -1,36 +1,46 @@
-import { addDays, addMonthsToDate, compareISODate } from '@/shared/lib/dateUtils';
+import { addDays, addMonthsToDate, compareISODate, eachDayInclusive } from '@/shared/lib/dateUtils';
 import type { Task, TaskInstance } from '@/shared/types/task';
 
-export function toInstance(task: Task, instanceDate = task.date): TaskInstance {
+export function toInstance(task: Task, instanceDate = task.date, spanStart = instanceDate): TaskInstance {
   return {
     ...task,
     date: instanceDate,
     sourceId: task.id,
     instanceDate,
-    instanceId: `${task.id}__${instanceDate}`,
+    instanceId: `${task.id}__${spanStart}__${instanceDate}`,
     isRecurring: Boolean(task.recurrence),
+    spanStart,
   };
+}
+
+function spanLength(task: Task): number {
+  if (!task.endDate || compareISODate(task.endDate, task.date) <= 0) return 1;
+  return eachDayInclusive(task.date, task.endDate).length;
+}
+
+function spanInstances(task: Task, start: string, from: string, to: string): TaskInstance[] {
+  const end = addDays(start, spanLength(task) - 1);
+  return eachDayInclusive(start, end)
+    .filter((day) => compareISODate(day, from) >= 0 && compareISODate(day, to) <= 0)
+    .map((day) => toInstance(task, day, start));
 }
 
 export function expandRecurrence(task: Task, from: string, to: string): TaskInstance[] {
   if (!task.recurrence) {
-    if (compareISODate(task.date, from) >= 0 && compareISODate(task.date, to) <= 0) {
-      return [toInstance(task)];
-    }
-    return [];
+    return spanInstances(task, task.date, from, to);
   }
 
   const instances: TaskInstance[] = [];
-  const until = task.recurrence.until && compareISODate(task.recurrence.until, to) < 0
-    ? task.recurrence.until
-    : to;
+  const until = task.recurrence.until;
   const exdates = new Set(task.recurrence.exdates);
   let cursor = task.date;
   let guard = 0;
 
-  while (compareISODate(cursor, until) <= 0 && guard < 400) {
-    if (compareISODate(cursor, from) >= 0 && !exdates.has(cursor)) {
-      instances.push(toInstance(task, cursor));
+  while (guard < 400) {
+    if (until && compareISODate(cursor, until) > 0) break;
+    if (compareISODate(cursor, to) > 0) break;
+    if (!exdates.has(cursor)) {
+      instances.push(...spanInstances(task, cursor, from, to));
     }
     cursor = nextOccurrence(cursor, task.recurrence.freq);
     guard += 1;

@@ -3,7 +3,7 @@ import { PERSONAL_GROUP_ID, WORK_GROUP_ID } from '@/shared/types/group';
 import type { RecurrenceScope, TaskDraft } from '@/shared/types/task';
 import { create } from 'zustand';
 
-export type SheetSnap = 'peek' | 'half' | 'full';
+export type SheetSnap = 'closed' | 'peek' | 'half' | 'full';
 
 type Modal =
   | { name: 'closed' }
@@ -43,7 +43,11 @@ export const useUiStore = create<UiState>((set) => ({
   pendingDraft: null,
   pendingScope: 'all',
   setSelectedDate: (selectedDate) =>
-    set({ selectedDate, currentMonth: selectedDate.slice(0, 7) }),
+    set((state) => ({
+      selectedDate,
+      currentMonth: selectedDate.slice(0, 7),
+      sheetSnap: state.sheetSnap === 'full' ? 'full' : 'half',
+    })),
   setCurrentMonth: (currentMonth) => set({ currentMonth }),
   toggleGroupFilter: (groupId) =>
     set((state) => ({

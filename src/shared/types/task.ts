@@ -7,6 +7,7 @@ export type Task = {
   title: string;
   groupId: string;
   date: string;
+  endDate?: string;
   time?: string;
   done: boolean;
   order: number;
@@ -24,12 +25,14 @@ export type TaskInstance = Task & {
   instanceDate: string;
   instanceId: string;
   isRecurring: boolean;
+  spanStart: string;
 };
 
 export type TaskDraft = {
   title: string;
   groupId: string;
   date: string;
+  endDate: string;
   timeEnabled: boolean;
   time: string;
   recurrenceEnabled: boolean;
