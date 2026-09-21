@@ -100,6 +100,9 @@ function WeekRow({
   const spans = layoutWeekSpans(week, tasks);
   const visible = spans.filter((span) => span.lane < MAX_LANES);
   const hidden = spans.filter((span) => span.lane >= MAX_LANES);
+  const overflowByCol = week.map((_, col) =>
+    hidden.filter((span) => col >= span.startCol && col < span.startCol + span.dayCount).length,
+  );
   const barSize = compact ? COMPACT_BAR : BAR_HEIGHT;
   const barGap = compact ? 3 : BAR_GAP;
 
@@ -139,14 +142,21 @@ function WeekRow({
             </button>
           );
         })}
-        {hidden.length > 0 ? (
-          <span
-            className="absolute text-[11px] text-faint"
-            style={{ left: 8, top: MAX_LANES * (barSize + barGap) }}
-          >
-            +{hidden.length}
-          </span>
-        ) : null}
+        {overflowByCol.map((count, col) =>
+          count > 0 ? (
+            <span
+              key={`overflow-${week[col]?.date}`}
+              className="absolute truncate px-1 text-[11px] text-faint"
+              style={{
+                left: `calc(${(col / 7) * 100}% + 4px)`,
+                width: `calc(${100 / 7}% - 8px)`,
+                top: MAX_LANES * (barSize + barGap),
+              }}
+            >
+              +{count}
+            </span>
+          ) : null,
+        )}
       </div>
     </div>
   );
