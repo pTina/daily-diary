@@ -13,7 +13,7 @@ import { useTaskMutations } from '@/features/task/hooks/useTaskMutations';
 import { useTaskSources, useTasks } from '@/features/task/hooks/useTasks';
 import { addDays, startOfWeek } from '@/shared/lib/dateUtils';
 import { useMediaQuery } from '@/shared/lib/useMediaQuery';
-import { isHolidayGroup } from '@/shared/types/group';
+import { isNonTodoGroup } from '@/shared/types/group';
 import type { RecurrenceScope, TaskDraft, TaskInstance } from '@/shared/types/task';
 import { useUiStore } from '@/store/useUiStore';
 import { useMemo } from 'react';
@@ -50,7 +50,7 @@ export function CalendarPage() {
   const findSource = (sourceId: string) => sources.find((task) => task.id === sourceId);
 
   const handleToggle = (task: TaskInstance) => {
-    if (isHolidayGroup(task.groupId)) return;
+    if (isNonTodoGroup(task.groupId)) return;
     mutations.toggleDone.mutate(task.sourceId);
   };
 
@@ -152,26 +152,16 @@ export function CalendarPage() {
       </div>
 
       {!isDesktop ? (
-        <>
-          <DayTaskModal
-            date={selectedDate}
-            groups={groups}
-            sources={sources}
-            instances={filteredInstances}
-            groupFilters={groupFilters}
-            onAdd={() => openTaskForm()}
-            onOpen={(task) => openTaskForm(task.sourceId, task.instanceDate)}
-            onToggle={handleToggle}
-          />
-          <button
-            type="button"
-            onClick={() => openTaskForm()}
-            className="fixed right-5 bottom-6 z-30 grid h-14 w-14 place-items-center rounded-full bg-ink text-2xl text-white shadow-panel"
-            aria-label="할 일 추가"
-          >
-            +
-          </button>
-        </>
+        <DayTaskModal
+          date={selectedDate}
+          groups={groups}
+          sources={sources}
+          instances={filteredInstances}
+          groupFilters={groupFilters}
+          onAdd={() => openTaskForm()}
+          onOpen={(task) => openTaskForm(task.sourceId, task.instanceDate)}
+          onToggle={handleToggle}
+        />
       ) : null}
 
       <SettingsModal />

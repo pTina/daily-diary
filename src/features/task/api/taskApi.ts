@@ -1,6 +1,7 @@
 import { addDays } from '@/shared/lib/dateUtils';
+import { solarToLunar } from '@/shared/lib/lunarCalendar';
 import { storage } from '@/shared/storage';
-import { isHolidayGroup } from '@/shared/types/group';
+import { isBirthdayGroup, isNonTodoGroup } from '@/shared/types/group';
 import type { RecurrenceScope, Task, TaskDraft } from '@/shared/types/task';
 import { nextOrder } from '../utils/sortTasks';
 
@@ -34,7 +35,7 @@ export const taskApi = {
   async toggleDone(id: string) {
     const tasks = await storage.listTasks();
     const next = tasks.map((task) =>
-      task.id === id && !isHolidayGroup(task.groupId) ? { ...task, done: !task.done } : task,
+      task.id === id && !isNonTodoGroup(task.groupId) ? { ...task, done: !task.done } : task,
     );
     await storage.writeTasks(next);
     return next.find((task) => task.id === id);
@@ -124,6 +125,8 @@ export const taskApi = {
 };
 
 function fromDraft(id: string, draft: TaskDraft, order: number): Task {
+  const birthday = isBirthdayGroup(draft.groupId);
+  const lunar = birthday && draft.calendar === 'lunar' ? solarToLunar(draft.date) : null;
   return {
     id,
     title: draft.title.trim(),
@@ -138,6 +141,8 @@ function fromDraft(id: string, draft: TaskDraft, order: number): Task {
       : undefined,
     reminder: draft.reminderEnabled ? { enabled: true, offsetMin: draft.offsetMin } : undefined,
     memo: draft.memo.trim() || undefined,
+    calendar: birthday ? (lunar ? 'lunar' : 'solar') : undefined,
+    lunar: lunar ?? undefined,
   };
 }
 

@@ -24,6 +24,10 @@ export function isBirthdayGroup(groupId: string) {
   return groupId === BIRTHDAY_GROUP_ID;
 }
 
+export function isNonTodoGroup(groupId: string) {
+  return isHolidayGroup(groupId) || isBirthdayGroup(groupId);
+}
+
 export function mergeDefaultGroups(groups: Group[] | null | undefined): Group[] {
   const byId = new Map((groups ?? []).map((group) => [group.id, group]));
   for (const fallback of DEFAULT_GROUPS) {

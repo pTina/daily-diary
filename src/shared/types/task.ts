@@ -2,6 +2,14 @@ export type RecurrenceFreq = 'daily' | 'weekly' | 'monthly' | 'yearly';
 
 export type RecurrenceScope = 'this' | 'future' | 'all';
 
+export type CalendarType = 'solar' | 'lunar';
+
+export type LunarDate = {
+  month: number;
+  day: number;
+  leap: boolean;
+};
+
 export type Task = {
   id: string;
   title: string;
@@ -19,6 +27,8 @@ export type Task = {
   reminder?: { enabled: boolean; offsetMin: number };
   memo?: string;
   holiday?: boolean;
+  calendar?: CalendarType;
+  lunar?: LunarDate;
 };
 
 export type TaskInstance = Task & {
@@ -43,4 +53,5 @@ export type TaskDraft = {
   reminderEnabled: boolean;
   offsetMin: number;
   memo: string;
+  calendar: CalendarType;
 };

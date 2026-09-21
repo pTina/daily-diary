@@ -3,7 +3,7 @@ import { useTaskDnd } from '@/features/task/hooks/useTaskDnd';
 import { sortTasks } from '@/features/task/utils/sortTasks';
 import { formatPanelDate } from '@/shared/lib/dateUtils';
 import type { Group } from '@/shared/types/group';
-import { isHolidayGroup } from '@/shared/types/group';
+import { isNonTodoGroup } from '@/shared/types/group';
 import type { Task, TaskInstance } from '@/shared/types/task';
 import { Button } from '@/shared/ui/Button';
 import { DndContext, closestCenter } from '@dnd-kit/core';
@@ -42,7 +42,7 @@ export function TaskPanel({
   ) as Record<string, TaskInstance[]>;
   const { sensors, onDragEnd } = useTaskDnd(grouped, sources);
   const todos = visibleGroups.flatMap((group) =>
-    (grouped[group.id] ?? []).filter((task) => !isHolidayGroup(task.groupId)),
+    (grouped[group.id] ?? []).filter((task) => !isNonTodoGroup(task.groupId)),
   );
   const total = todos.length;
   const done = todos.filter((task) => task.done).length;

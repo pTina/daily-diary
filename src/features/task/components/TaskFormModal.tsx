@@ -9,8 +9,9 @@ import { Switch } from '@/shared/ui/Switch';
 import { TextField } from '@/shared/ui/TextField';
 import { TimeWheel } from '@/shared/ui/TimeWheel';
 import { addDays, eachDayInclusive, snapToTimeStep } from '@/shared/lib/dateUtils';
+import { formatLunarLabel, solarToLunar } from '@/shared/lib/lunarCalendar';
 import { isBirthdayGroup, isHolidayGroup, WORK_GROUP_ID } from '@/shared/types/group';
-import type { TaskDraft } from '@/shared/types/task';
+import type { CalendarType, TaskDraft } from '@/shared/types/task';
 import { useUiStore } from '@/store/useUiStore';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -33,6 +34,7 @@ const emptyDraft = (date: string, groupId: string): TaskDraft => ({
   reminderEnabled: false,
   offsetMin: 10,
   memo: '',
+  calendar: 'solar',
 });
 
 export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
@@ -64,11 +66,14 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
       reminderEnabled: Boolean(source.reminder?.enabled),
       offsetMin: source.reminder?.offsetMin ?? 10,
       memo: source.memo ?? '',
+      calendar: source.calendar ?? 'solar',
     } satisfies TaskDraft;
   }, [source, selectedDate, instanceDate]);
 
   const [draft, setDraft] = useState(initial);
   const holiday = isHolidayGroup(draft.groupId);
+  const birthday = isBirthdayGroup(draft.groupId);
+  const lunarHint = birthday && draft.calendar === 'lunar' ? solarToLunar(draft.date) : null;
 
   useEffect(() => {
     if (open) setDraft(initial);
@@ -156,6 +161,21 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
             }))
           }
         />
+        {birthday ? (
+          <div className="flex flex-col gap-1.5">
+            <RadioGroup
+              name="task-calendar"
+              label="달력"
+              value={draft.calendar}
+              options={[
+                { value: 'solar', label: '양력' },
+                { value: 'lunar', label: '음력' },
+              ]}
+              onChange={(calendar) => set('calendar', calendar as CalendarType)}
+            />
+            {lunarHint ? <p className="text-sm text-muted">{formatLunarLabel(lunarHint)}</p> : null}
+          </div>
+        ) : null}
         {holiday ? null : (
           <>
             <Switch

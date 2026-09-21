@@ -1,4 +1,5 @@
 import { addDays, addMonthsToDate, addYearsToDate, compareISODate, eachDayInclusive } from '@/shared/lib/dateUtils';
+import { lunarToSolar } from '@/shared/lib/lunarCalendar';
 import type { Task, TaskInstance } from '@/shared/types/task';
 
 export function toInstance(
@@ -36,6 +37,10 @@ export function expandRecurrence(task: Task, from: string, to: string): TaskInst
     return spanInstances(task, task.date, from, to);
   }
 
+  if (task.calendar === 'lunar' && task.recurrence.freq === 'yearly' && task.lunar) {
+    return expandLunarYearly(task, from, to);
+  }
+
   const instances: TaskInstance[] = [];
   const until =
     task.recurrence.until && compareISODate(task.recurrence.until, task.date) >= 0
@@ -67,4 +72,38 @@ function nextOccurrence(date: string, freq: NonNullable<Task['recurrence']>['fre
   if (freq === 'weekly') return addDays(date, 7);
   if (freq === 'yearly') return addYearsToDate(date, 1);
   return addMonthsToDate(date, 1);
+}
+
+function recurrenceUntil(task: Task): string | undefined {
+  return task.recurrence?.until && compareISODate(task.recurrence.until, task.date) >= 0
+    ? task.recurrence.until
+    : undefined;
+}
+
+function expandLunarYearly(task: Task, from: string, to: string): TaskInstance[] {
+  const lunar = task.lunar;
+  if (!lunar) return spanInstances(task, task.date, from, to);
+
+  const until = recurrenceUntil(task);
+  const exdates = new Set(task.recurrence?.exdates ?? []);
+  const fromYear = Number(from.slice(0, 4));
+  const toYear = Number(to.slice(0, 4));
+  const startYear = Number(task.date.slice(0, 4));
+  const seen = new Set<string>();
+  const instances: TaskInstance[] = [];
+
+  const add = (solar: string | null) => {
+    if (!solar || seen.has(solar)) return;
+    if (compareISODate(solar, task.date) < 0) return;
+    if (until && compareISODate(solar, until) > 0) return;
+    seen.add(solar);
+    if (exdates.has(solar)) return;
+    instances.push(...spanInstances(task, solar, from, to));
+  };
+
+  add(task.date);
+  for (let year = Math.min(startYear, fromYear) - 1; year <= toYear + 1; year += 1) {
+    add(lunarToSolar(year, lunar));
+  }
+  return instances;
 }
