@@ -3,7 +3,7 @@ import { useTaskDnd } from '@/features/task/hooks/useTaskDnd';
 import { sortTasks } from '@/features/task/utils/sortTasks';
 import { formatPanelDate } from '@/shared/lib/dateUtils';
 import type { Group } from '@/shared/types/group';
-import { isNonTodoGroup } from '@/shared/types/group';
+import { isHolidayGroup, isNonTodoGroup } from '@/shared/types/group';
 import type { Task, TaskInstance } from '@/shared/types/task';
 import { Button } from '@/shared/ui/Button';
 import { DndContext, closestCenter } from '@dnd-kit/core';
@@ -33,7 +33,9 @@ export function TaskPanel({
   showAddButton = true,
   embedded = false,
 }: Props) {
-  const visibleGroups = groups.filter((group) => groupFilters[group.id] !== false);
+  const visibleGroups = groups.filter(
+    (group) => groupFilters[group.id] !== false && !isHolidayGroup(group.id),
+  );
   const grouped = Object.fromEntries(
     visibleGroups.map((group) => [
       group.id,

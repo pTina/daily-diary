@@ -2,13 +2,20 @@ import type { CalendarCell } from '@/features/calendar/hooks/useMonthMatrix';
 import { parseISODate, todayISO } from '@/shared/lib/dateUtils';
 import { useMediaQuery } from '@/shared/lib/useMediaQuery';
 import { useUiStore } from '@/store/useUiStore';
+import type { MouseEvent } from 'react';
+
+export type DayHoliday = {
+  title: string;
+  sourceId: string;
+  instanceDate: string;
+};
 
 type Props = {
   cell: CalendarCell;
-  holiday?: boolean;
+  holiday?: DayHoliday | null;
 };
 
-export function DayCell({ cell, holiday = false }: Props) {
+export function DayCell({ cell, holiday = null }: Props) {
   const selectedDate = useUiStore((state) => state.selectedDate);
   const setSelectedDate = useUiStore((state) => state.setSelectedDate);
   const openDayPanel = useUiStore((state) => state.openDayPanel);
@@ -18,6 +25,15 @@ export function DayCell({ cell, holiday = false }: Props) {
   const selected = cell.date === selectedDate;
   const day = parseISODate(cell.date).getDate();
   const sunday = parseISODate(cell.date).getDay() === 0;
+  const holidayDate = Boolean(holiday);
+
+  const onHolidayClick = (event: MouseEvent<HTMLSpanElement>) => {
+    if (!holiday) return;
+    event.preventDefault();
+    event.stopPropagation();
+    setSelectedDate(cell.date);
+    openTaskForm(holiday.sourceId, holiday.instanceDate);
+  };
 
   return (
     <button
@@ -35,12 +51,12 @@ export function DayCell({ cell, holiday = false }: Props) {
         selected ? 'ring-2 ring-accent ring-inset' : ''
       } ${cell.inMonth ? 'bg-paper/80' : 'bg-canvas/70'}`}
     >
-      <span className="flex h-7 items-center">
+      <span className="flex h-7 min-w-0 items-center gap-0.5">
         <span
-          className={`grid h-7 w-7 place-items-center rounded-full text-sm tabular-nums ${
+          className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm tabular-nums ${
             isToday
               ? 'bg-accent font-semibold text-ink'
-              : holiday || (cell.inMonth && sunday)
+              : holidayDate || (cell.inMonth && sunday)
                 ? 'text-sunday'
                 : cell.inMonth
                   ? 'text-ink'
@@ -49,6 +65,14 @@ export function DayCell({ cell, holiday = false }: Props) {
         >
           {day}
         </span>
+        {holiday ? (
+          <span
+            className="min-w-0 truncate text-[10px] leading-none text-sunday"
+            onClick={onHolidayClick}
+          >
+            {holiday.title}
+          </span>
+        ) : null}
       </span>
     </button>
   );

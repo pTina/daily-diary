@@ -47,8 +47,8 @@ export function TimeWheel({ id, label, value, onChange }: Props) {
         role="group"
         aria-labelledby={id}
       >
-        <div className="pointer-events-none absolute inset-x-3 top-1/2 z-10 h-11 -translate-y-1/2 rounded-2xl border-2 border-accent bg-paper/80" />
-        <div className="relative z-0 grid grid-cols-3 px-2">
+        <div className="pointer-events-none absolute inset-x-3 top-1/2 z-0 h-11 -translate-y-1/2 rounded-2xl border-2 border-accent bg-paper" />
+        <div className="relative z-10 grid grid-cols-3 px-2">
           <WheelColumn
             items={[...PERIODS]}
             value={parsed.period}
@@ -108,7 +108,7 @@ function WheelColumn<T extends string | number>({
           type="button"
           tabIndex={-1}
           className={`flex h-11 w-full snap-center items-center justify-center text-base ${
-            item === value ? 'font-medium text-ink' : 'font-normal text-faint'
+            item === value ? 'font-semibold text-ink' : 'font-normal text-[#C8CBD0]'
           }`}
           onClick={() => {
             onChange(item);

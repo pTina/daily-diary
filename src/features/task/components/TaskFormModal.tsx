@@ -117,6 +117,7 @@ export function TaskFormModal({ onCreate, onUpdate, onDelete }: Props) {
           label="제목"
           value={draft.title}
           placeholder={holiday ? '휴일 이름' : '무엇을 할까요?'}
+          autoFocus={!source}
           onChange={(event) => set('title', event.target.value)}
         />
         <DateField

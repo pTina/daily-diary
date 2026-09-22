@@ -26,10 +26,14 @@ const COMPACT_GAP = 2;
 export function MonthGrid({ currentMonth, selectedDate, mode, tasks, groups, compact }: Props) {
   const { weekdays, weeks } = useMonthMatrix(currentMonth, mode, selectedDate);
   const setCurrentMonth = useUiStore((state) => state.setCurrentMonth);
-  const holidayDates = useMemo(
-    () => new Set(tasks.filter((task) => isHolidayGroup(task.groupId)).map((task) => task.date)),
-    [tasks],
-  );
+  const holidaysByDate = useMemo(() => {
+    const map = new Map<string, TaskInstance>();
+    for (const task of tasks) {
+      if (!isHolidayGroup(task.groupId) || map.has(task.date)) continue;
+      map.set(task.date, task);
+    }
+    return map;
+  }, [tasks]);
   const start = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
 
@@ -82,7 +86,7 @@ export function MonthGrid({ currentMonth, selectedDate, mode, tasks, groups, com
             week={week}
             tasks={tasks}
             groups={groups}
-            holidayDates={holidayDates}
+            holidaysByDate={holidaysByDate}
             compact={compact}
           />
         ))}
@@ -95,13 +99,13 @@ function WeekRow({
   week,
   tasks,
   groups,
-  holidayDates,
+  holidaysByDate,
   compact,
 }: {
   week: { date: string; inMonth: boolean }[];
   tasks: TaskInstance[];
   groups: Group[];
-  holidayDates: Set<string>;
+  holidaysByDate: Map<string, TaskInstance>;
   compact: boolean;
 }) {
   const openTaskForm = useUiStore((state) => state.openTaskForm);
@@ -116,9 +120,24 @@ function WeekRow({
 
   return (
     <div className="relative grid min-h-0 flex-1 grid-cols-7">
-      {week.map((cell) => (
-        <DayCell key={cell.date} cell={cell} holiday={holidayDates.has(cell.date)} />
-      ))}
+      {week.map((cell) => {
+        const holiday = holidaysByDate.get(cell.date);
+        return (
+          <DayCell
+            key={cell.date}
+            cell={cell}
+            holiday={
+              holiday
+                ? {
+                    title: holiday.title,
+                    sourceId: holiday.sourceId,
+                    instanceDate: holiday.instanceDate,
+                  }
+                : null
+            }
+          />
+        );
+      })}
       <div className="pointer-events-none absolute inset-x-0 top-9 bottom-1 lg:top-10">
         {visible.map((span) => {
           const group = groups.find((item) => item.id === span.task.groupId);

@@ -20,14 +20,14 @@ export function layoutWeekSpans(week: CalendarCell[], tasks: TaskInstance[]): We
 
   const unique = new Map<string, TaskInstance>();
   for (const task of tasks) {
+    if (isHolidayGroup(task.groupId)) continue;
     if (compareISODate(task.spanEnd, weekStart) < 0 || compareISODate(task.spanStart, weekEnd) > 0) continue;
     const key = `${task.sourceId}__${task.spanStart}`;
     if (!unique.has(key)) unique.set(key, task);
   }
 
   const items = [...unique.values()].sort((a, b) => {
-    const rank = (task: TaskInstance) =>
-      isBirthdayGroup(task.groupId) || isHolidayGroup(task.groupId) ? 0 : 1;
+    const rank = (task: TaskInstance) => (isBirthdayGroup(task.groupId) ? 0 : 1);
     if (rank(a) !== rank(b)) return rank(a) - rank(b);
     const startA = maxDate(a.spanStart, weekStart);
     const startB = maxDate(b.spanStart, weekStart);
