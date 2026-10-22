@@ -18,13 +18,22 @@ import { useEffect, useState } from 'react';
 
 const googleProvider = () => new GoogleAuthProvider();
 
-function prefersRedirectSignIn() {
+function isTablet() {
   if (typeof navigator === 'undefined') return false;
   const ua = navigator.userAgent;
-  const iOS =
-    /iPad|iPhone|iPod/.test(ua) ||
+  const iPad =
+    /iPad/.test(ua) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  return iOS || /Android/i.test(ua);
+  if (iPad) return true;
+  if (!/Android/i.test(ua)) return false;
+  if (!/Mobile/i.test(ua)) return true;
+  return Math.min(screen.width, screen.height) >= 768;
+}
+
+function prefersRedirectSignIn() {
+  if (typeof navigator === 'undefined' || isTablet()) return false;
+  const ua = navigator.userAgent;
+  return /iPhone|iPod/i.test(ua) || /Android/i.test(ua);
 }
 
 export async function initAuthPersistence() {
