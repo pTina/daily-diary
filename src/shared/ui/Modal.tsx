@@ -53,17 +53,17 @@ export function Modal({
       aria-labelledby={titleId}
       onClick={onBackdrop}
     >
-      <div className={`modal-dialog flex w-full flex-col bg-paper shadow-panel ${dialogSize}`}>
-        <div className="modal-content flex min-h-0 flex-1 flex-col">
+      <div className={`modal-dialog flex w-full min-w-0 flex-col overflow-hidden bg-paper shadow-panel ${dialogSize}`}>
+        <div className="modal-content flex min-h-0 min-w-0 flex-1 flex-col">
           <div className="modal-header flex items-center justify-between border-b border-line px-5 py-4">
-            <h2 id={titleId} className="modal-title text-lg font-semibold">
+            <h2 id={titleId} className="modal-title min-w-0 truncate text-lg font-semibold">
               {title}
             </h2>
             <button type="button" className="text-sm text-muted hover:text-ink" onClick={onClose}>
               닫기
             </button>
           </div>
-          <div className="modal-conts min-h-0 flex-1 overflow-y-auto px-5 py-5">{children}</div>
+          <div className="modal-conts min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-5 py-5">{children}</div>
           {footer ? <div className="modal-btn border-t border-line px-5 py-4">{footer}</div> : null}
         </div>
       </div>

@@ -15,7 +15,7 @@ export function GroupSection({ group, tasks, onToggle, onOpen }: Props) {
   const { setNodeRef, isOver } = useDroppable({ id: `group:${group.id}` });
 
   return (
-    <section ref={setNodeRef} className={`rounded-xl ${isOver ? 'bg-canvas' : ''}`}>
+    <section ref={setNodeRef} className={`min-w-0 rounded-xl ${isOver ? 'bg-canvas' : ''}`}>
       <div className="mb-2 flex items-center gap-2">
         <span className="h-2 w-2 rounded-full" style={{ backgroundColor: group.color }} aria-hidden />
         <h3 className="text-sm font-medium text-ink">{group.name}</h3>

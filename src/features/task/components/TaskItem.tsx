@@ -25,7 +25,7 @@ export function TaskItem({ task, group, onToggle, onOpen }: Props) {
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`relative flex gap-3 rounded-xl bg-paper py-2 pr-2 pl-3 ${memo ? 'items-start' : 'items-center'} ${isDragging ? 'z-10 shadow-panel' : ''}`}
+      className={`relative flex min-w-0 gap-3 rounded-xl bg-paper py-2 pr-2 pl-3 ${memo ? 'items-start' : 'items-center'} ${isDragging ? 'z-10 shadow-panel' : ''}`}
     >
       <span
         className="absolute inset-y-2 left-0 w-[3px] rounded-full"
@@ -46,18 +46,18 @@ export function TaskItem({ task, group, onToggle, onOpen }: Props) {
         className="min-w-0 flex-1 py-0.5 text-left"
         aria-label={`${group.name}, ${task.time ? `${task.time} ` : ''}${task.title}${memo ? `, 메모 ${memo}` : ''}${!hideCheckbox && task.done ? ', 완료됨' : ''}`}
       >
-        <span className="flex items-baseline gap-2">
+        <span className="flex min-w-0 items-baseline gap-2">
           {task.time && !holiday ? (
-            <span className={`text-xs tabular-nums ${task.done ? 'text-faint' : 'text-muted'}`}>
+            <span className={`shrink-0 text-xs tabular-nums ${task.done ? 'text-faint' : 'text-muted'}`}>
               {task.time}
             </span>
           ) : null}
-          <span className={`truncate text-sm ${!hideCheckbox && task.done ? 'text-faint line-through' : 'text-ink'}`}>
+          <span className={`min-w-0 truncate text-sm ${!hideCheckbox && task.done ? 'text-faint line-through' : 'text-ink'}`}>
             {task.title}
           </span>
         </span>
         {memo ? (
-          <span className={`mt-3 block whitespace-pre-wrap break-words text-sm ${!hideCheckbox && task.done ? 'text-faint' : 'text-muted'}`}>
+          <span className={`mt-3 block wrap-anywhere whitespace-pre-wrap text-sm ${!hideCheckbox && task.done ? 'text-faint' : 'text-muted'}`}>
             {memo}
           </span>
         ) : null}

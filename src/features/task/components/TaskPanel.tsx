@@ -50,7 +50,7 @@ export function TaskPanel({
   const done = todos.filter((task) => task.done).length;
 
   return (
-    <aside className={embedded ? 'flex flex-col bg-paper' : 'flex h-full min-h-0 flex-col bg-paper'}>
+    <aside className={embedded ? 'flex min-w-0 flex-col overflow-x-hidden bg-paper' : 'flex h-full min-h-0 flex-col bg-paper'}>
       {embedded ? (
         <div className="mb-4 flex items-start justify-between gap-3">
           <p className="text-sm text-muted">
