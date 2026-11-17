@@ -25,7 +25,7 @@ export function GroupSection({ group, tasks, onToggle, onOpen }: Props) {
         {tasks.length === 0 ? (
           <p className="px-1 py-3 text-sm text-faint">할 일이 없습니다</p>
         ) : (
-          <div className="grid gap-1">
+          <div className="grid min-w-0 gap-1">
             {tasks.map((task) => (
               <TaskItem
                 key={task.instanceId}

@@ -8,7 +8,7 @@ type Props = {
 
 export function Checkbox({ id, checked, onChange, label, ariaLabel }: Props) {
   return (
-    <div className="krds-form-check relative flex items-center">
+    <div className="krds-form-check relative flex shrink-0 items-center">
       <input
         id={id}
         type="checkbox"

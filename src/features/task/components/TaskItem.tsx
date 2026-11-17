@@ -25,7 +25,7 @@ export function TaskItem({ task, group, onToggle, onOpen }: Props) {
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`relative flex min-w-0 gap-3 rounded-xl bg-paper py-2 pr-2 pl-3 ${memo ? 'items-start' : 'items-center'} ${isDragging ? 'z-10 shadow-panel' : ''}`}
+      className={`relative flex w-full min-w-0 items-start gap-3 overflow-hidden rounded-xl bg-paper py-2 pr-2 pl-3 ${isDragging ? 'z-10 shadow-panel' : ''}`}
     >
       <span
         className="absolute inset-y-2 left-0 w-[3px] rounded-full"
@@ -43,18 +43,16 @@ export function TaskItem({ task, group, onToggle, onOpen }: Props) {
       <button
         type="button"
         onClick={onOpen}
-        className="min-w-0 flex-1 py-0.5 text-left"
+        className="min-w-0 flex-1 py-0.5 text-left whitespace-normal"
         aria-label={`${group.name}, ${task.time ? `${task.time} ` : ''}${task.title}${memo ? `, 메모 ${memo}` : ''}${!hideCheckbox && task.done ? ', 완료됨' : ''}`}
       >
-        <span className="flex min-w-0 items-baseline gap-2">
+        <span className={`block wrap-anywhere text-sm ${!hideCheckbox && task.done ? 'text-faint line-through' : 'text-ink'}`}>
           {task.time && !holiday ? (
-            <span className={`shrink-0 text-xs tabular-nums ${task.done ? 'text-faint' : 'text-muted'}`}>
+            <span className={`mr-2 inline-block tabular-nums ${task.done ? 'text-faint' : 'text-muted'}`}>
               {task.time}
             </span>
           ) : null}
-          <span className={`min-w-0 truncate text-sm ${!hideCheckbox && task.done ? 'text-faint line-through' : 'text-ink'}`}>
-            {task.title}
-          </span>
+          {task.title}
         </span>
         {memo ? (
           <span className={`mt-3 block wrap-anywhere whitespace-pre-wrap text-sm ${!hideCheckbox && task.done ? 'text-faint' : 'text-muted'}`}>
@@ -64,7 +62,7 @@ export function TaskItem({ task, group, onToggle, onOpen }: Props) {
       </button>
       <button
         type="button"
-        className="grid h-8 w-8 place-items-center text-faint hover:text-muted"
+        className="grid h-8 w-8 shrink-0 place-items-center text-faint hover:text-muted"
         aria-label="순서 변경"
         {...attributes}
         {...listeners}
